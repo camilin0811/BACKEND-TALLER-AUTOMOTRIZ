@@ -1,0 +1,49 @@
+# =============================================================================
+#  Despliegue en Render
+#
+#  Con este archivo el servicio se crea solo: Render lee el Blueprint, detecta
+#  el Dockerfile y pide unicamente los dos valores que no se pueden adivinar
+#  (la cadena de Mongo y la URL del frontend). Todo lo demas queda fijado aqui,
+#  que es como debe ser: la configuracion del despliegue vive en el repositorio
+#  y no en la memoria de quien lo creo.
+# =============================================================================
+
+services:
+  - type: web
+    name: taller-backend
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+
+    # Render solo manda trafico cuando el actuator responde, no cuando el
+    # proceso arranca: sin MongoDB la aplicacion no sirve de nada.
+    healthCheckPath: /actuator/health
+
+    envVars:
+      # Hay que pegarla en el panel: es un secreto y no puede ir en el repo.
+      - key: MONGODB_URI
+        sync: false
+
+      # La genera Render. Mejor que una inventada a mano, y nadie llega a verla.
+      - key: JWT_SECRETO
+        generateValue: true
+
+      # La URL del frontend, una vez desplegado. Sin esto el navegador
+      # bloquea las llamadas aunque el backend funcione.
+      - key: CORS_ORIGENES
+        sync: false
+
+      # Solo para la demostracion: carga el catalogo y los usuarios de ejemplo.
+      - key: SPRING_PROFILES_ACTIVE
+        value: seed
+
+      # Sin proveedor tecnologico contratado, la facturacion se simula.
+      - key: DIAN_SIMULADA
+        value: "true"
+
+      # El plan gratuito da 512 MB. El 75% por defecto del Dockerfile deja al
+      # heap sin espacio para metaspace y pilas, y la JVM muere al arrancar.
+      # Con 60% y el metaspace acotado, entra con margen.
+      - key: JAVA_OPTS
+        value: "-XX:MaxRAMPercentage=60 -XX:+UseSerialGC -XX:MaxMetaspaceSize=128m"

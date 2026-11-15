@@ -23,6 +23,12 @@ El proyecto vive en dos repositorios:
 
 Las [issues](https://github.com/camilin0811/TALLER-AUTOMOTRIZ/issues) son las 20 historias de usuario, cada una con su mockup y sus criterios de aceptación.
 
+## Desplegar
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/camilin0811/BACKEND-TALLER-AUTOMOTRIZ)
+
+El `render.yaml` ya trae la configuracion: Render solo pregunta la cadena de MongoDB y la URL del frontend. El resto lo fija el Blueprint. El paso a paso completo esta en [DESPLIEGUE.md](DESPLIEGUE.md).
+
 ## Requisitos
 
 - **Java 21** o superior
