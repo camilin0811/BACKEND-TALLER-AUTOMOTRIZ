@@ -1,8 +1,15 @@
-# Sistema de Gestión del Taller Automotriz Automatizado
+# Backend · Sistema de Gestión del Taller Automotriz Automatizado
 
-Backend del sistema de gestión para un taller de **automóviles y motocicletas**.
+API del sistema de gestión para un taller de **automóviles y motocicletas**.
 
-**Todo el diseño está en la [wiki del repositorio](https://github.com/camilin0811/TALLER-AUTOMOTRIZ/wiki).** El código implementa lo que allí se decidió; si los dos se contradicen, gana la wiki y el código es el que tiene el error.
+El proyecto vive en dos repositorios:
+
+| Repositorio | Contiene |
+|---|---|
+| **Este** | El código del backend |
+| [TALLER-AUTOMOTRIZ](https://github.com/camilin0811/TALLER-AUTOMOTRIZ) | La wiki de diseño, las 20 historias de usuario como issues y los diagramas UML |
+
+**Todo el diseño está en la [wiki](https://github.com/camilin0811/TALLER-AUTOMOTRIZ/wiki).** El código implementa lo que allí se decidió; si los dos se contradicen, gana la wiki y el código es el que tiene el error.
 
 | | |
 |---|---|
