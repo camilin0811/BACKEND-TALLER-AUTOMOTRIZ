@@ -1,5 +1,6 @@
 package com.taller.aplicacion.servicio;
 
+import com.taller.dominio.excepcion.CredencialesInvalidasException;
 import com.taller.dominio.excepcion.RecursoDuplicadoException;
 import com.taller.dominio.excepcion.RecursoNoEncontradoException;
 import com.taller.dominio.excepcion.ReglaNegocioException;
@@ -51,7 +52,7 @@ public class AutenticacionService {
 
         if (usuario == null || !codificador.coincide(claveEnClaro, usuario.getHashClave())) {
             log.warn("Intento de acceso fallido para el usuario '{}'", nombreUsuario);
-            throw new ReglaNegocioException("CREDENCIALES_INVALIDAS", "Usuario o clave incorrectos");
+            throw new CredencialesInvalidasException();
         }
         usuario.exigirActivo();
 
@@ -92,7 +93,7 @@ public class AutenticacionService {
     public void cambiarClave(String nombreUsuario, String claveActual, String claveNueva) {
         Usuario usuario = obtenerPorNombre(nombreUsuario);
         if (!codificador.coincide(claveActual, usuario.getHashClave())) {
-            throw new ReglaNegocioException("CREDENCIALES_INVALIDAS", "La clave actual no coincide");
+            throw new CredencialesInvalidasException();
         }
         exigirClaveRazonable(claveNueva);
         usuario.cambiarClave(codificador.codificar(claveNueva));

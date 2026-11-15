@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -51,6 +53,12 @@ public class ManejadorGlobalErrores {
         return construir(HttpStatus.CONFLICT, e.getCodigo(), e.getMessage(), req, detalle);
     }
 
+    @ExceptionHandler(CredencialesInvalidasException.class)
+    public ResponseEntity<ErrorRespuesta> credenciales(CredencialesInvalidasException e,
+                                                       HttpServletRequest req) {
+        return construir(HttpStatus.UNAUTHORIZED, e.getCodigo(), e.getMessage(), req, null);
+    }
+
     @ExceptionHandler(ReglaNegocioException.class)
     public ResponseEntity<ErrorRespuesta> regla(ReglaNegocioException e, HttpServletRequest req) {
         return construir(HttpStatus.UNPROCESSABLE_ENTITY, e.getCodigo(), e.getMessage(), req, null);
@@ -68,6 +76,23 @@ public class ManejadorGlobalErrores {
                 .forEach(error -> campos.put(error.getField(), error.getDefaultMessage()));
         return construir(HttpStatus.BAD_REQUEST, "VALIDACION", "Hay campos invalidos en la solicitud",
                 req, campos);
+    }
+
+    /** Falta un parametro obligatorio: es culpa de la peticion, no del servidor. */
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorRespuesta> parametroFaltante(MissingServletRequestParameterException e,
+                                                            HttpServletRequest req) {
+        return construir(HttpStatus.BAD_REQUEST, "PARAMETRO_FALTANTE",
+                "Falta el parametro obligatorio '%s'".formatted(e.getParameterName()), req,
+                Map.of("parametro", e.getParameterName()));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorRespuesta> tipoInvalido(MethodArgumentTypeMismatchException e,
+                                                       HttpServletRequest req) {
+        return construir(HttpStatus.BAD_REQUEST, "PARAMETRO_INVALIDO",
+                "El valor de '%s' no es valido".formatted(e.getName()), req,
+                Map.of("parametro", String.valueOf(e.getName())));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

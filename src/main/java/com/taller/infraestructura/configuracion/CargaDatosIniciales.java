@@ -58,8 +58,13 @@ public class CargaDatosIniciales implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
+        // Los usuarios se revisan siempre, no solo en una base vacia: una base
+        // creada antes de que existiera la autenticacion se quedaria sin
+        // ninguna credencial y nadie podria entrar.
+        cargarUsuarios();
+
         if (!servicios.listarActivos().isEmpty()) {
-            log.info("El catalogo ya tiene datos; la carga inicial no hace nada");
+            log.info("El catalogo ya tiene datos; solo se verificaron los usuarios");
             return;
         }
 
@@ -67,7 +72,6 @@ public class CargaDatosIniciales implements ApplicationRunner {
         cargarInventario();
         String idCliente = cargarClienteConVehiculos();
         cargarPersonal();
-        cargarUsuarios();
 
         log.info("Carga inicial lista. Cliente de prueba: {} | placas ABC123 (automovil) y XYZ12D (motocicleta)",
                 idCliente);
