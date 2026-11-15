@@ -49,6 +49,16 @@ mvn spring-boot:run
 | Documentación interactiva | `http://localhost:8080/api-docs` |
 | Estado del servicio | `http://localhost:8080/actuator/health` |
 
+## Con Docker
+
+```bash
+docker compose up --build
+```
+
+Levanta MongoDB y el backend con el perfil `seed`, que carga catálogo y usuarios de demostración.
+
+Para poner el sistema en línea, ver **[DESPLIEGUE.md](DESPLIEGUE.md)**: variables obligatorias, el ida y vuelta del CORS entre backend y frontend, las comprobaciones posteriores y la lista de lo que falta para producción.
+
 ## Pruebas
 
 ```bash
