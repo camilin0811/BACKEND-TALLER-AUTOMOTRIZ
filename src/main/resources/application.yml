@@ -17,6 +17,9 @@ server:
     include-stacktrace: never
 
 taller:
+  cors:
+    # Origenes del frontend. En produccion se sobrescribe por variable de entorno.
+    origenes: ${CORS_ORIGENES:http://localhost:5173,http://localhost:4173}
   facturacion:
     iva: 0.19
     proveedor-url: ${DIAN_PROVEEDOR_URL:http://localhost:9090/dian}
