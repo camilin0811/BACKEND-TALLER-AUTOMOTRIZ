@@ -23,7 +23,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <archunit.version>1.3.0</archunit.version>
         <springdoc.version>2.6.0</springdoc.version>
-        <jacoco.version>0.8.12</jacoco.version>
+        <jacoco.version>0.8.15</jacoco.version>
     </properties>
 
     <dependencies>
@@ -87,6 +87,13 @@
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
+                        <configuration>
+                            <!-- Solo nuestro codigo: instrumentar librerias y JDK
+                                 es trabajo perdido y rompe en JDK muy recientes. -->
+                            <includes>
+                                <include>com/taller/**</include>
+                            </includes>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>reporte</id>
