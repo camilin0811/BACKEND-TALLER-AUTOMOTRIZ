@@ -5,6 +5,7 @@ import com.taller.dominio.puerto.FacturacionElectronica;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -13,11 +14,15 @@ import java.util.Map;
 /**
  * Integracion con el proveedor tecnologico autorizado por la DIAN (ADR-007).
  *
+ * <p>Solo se activa con {@code taller.facturacion.simulada=false}. Mientras
+ * no haya proveedor contratado, el bean activo es {@link FacturacionSimulada}.
+ *
  * <p>Reintenta con espera creciente. Si agota los intentos devuelve un rechazo
  * tecnico y la factura queda PENDIENTE_ENVIO para reintentar despues: una
  * caida del proveedor no puede perder la factura.
  */
 @Component
+@ConditionalOnProperty(name = "taller.facturacion.simulada", havingValue = "false")
 public class DianFacturacionClient implements FacturacionElectronica {
 
     private static final Logger log = LoggerFactory.getLogger(DianFacturacionClient.class);

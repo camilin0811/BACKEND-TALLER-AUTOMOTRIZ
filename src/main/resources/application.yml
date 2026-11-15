@@ -29,6 +29,10 @@ taller:
     origenes: ${CORS_ORIGENES:http://localhost:5173,http://localhost:4173}
   facturacion:
     iva: 0.19
+    # Sin proveedor tecnologico contratado la facturacion se simula: el ciclo
+    # se recorre completo y el CUFE generado NO tiene validez fiscal.
+    # Para usar el proveedor real: poner false y completar url y api-key.
+    simulada: ${DIAN_SIMULADA:true}
     proveedor-url: ${DIAN_PROVEEDOR_URL:http://localhost:9090/dian}
     api-key: ${DIAN_API_KEY:}
     reintentos: 3

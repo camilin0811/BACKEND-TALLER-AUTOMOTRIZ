@@ -50,6 +50,7 @@ MONGODB_URI="mongodb+srv://usuario:clave@cluster..." docker compose up --build
 | `JWT_SECRETO` | 32+ caracteres aleatorios | **Obligatorio.** Con el valor por defecto cualquiera firma un token de administrador |
 | `CORS_ORIGENES` | La URL del frontend desplegado | Sin esto el navegador bloquea las llamadas |
 | `SPRING_PROFILES_ACTIVE` | `seed` | Solo para la demostración: carga datos de ejemplo |
+| `DIAN_SIMULADA` | `true` (ya es el valor por defecto) | La facturación se simula; no hace falta proveedor contratado |
 
 4. Railway asigna una URL del tipo `https://algo.up.railway.app`.
 
@@ -127,9 +128,9 @@ Esto es lo que separa una demostración de un sistema que un taller puede usar d
 
 | Pendiente | Por qué importa |
 |---|---|
-| **Proveedor tecnológico DIAN** | Hoy `DIAN_PROVEEDOR_URL` apunta a un servidor que no existe. Sin contratar el proveedor, el taller no puede facturar legalmente |
+| **Proveedor tecnológico DIAN** | Hoy la facturación está **simulada** (`DIAN_SIMULADA=true`): el ciclo se recorre completo y el CUFE lleva prefijo `SIM-`, pero **no tiene validez fiscal**. Para facturar de verdad hay que contratar el proveedor y poner `DIAN_SIMULADA=false` |
 | **WhatsApp Business API** | Igual: sin el número habilitado no sale ni entra ningún mensaje, y con ello se cae la aprobación de cotizaciones, que es la decisión central del diseño |
-| **Pasarela de pagos** | Los cobros en línea no funcionan |
+| **Pasarela de pagos** | Los cobros en línea no funcionan; los pagos se registran a mano |
 | **Dominio propio con HTTPS** | El webhook de WhatsApp exige una URL pública estable. Las URL que asignan Railway o Vercel cambian al recrear el servicio |
 | **Quitar el perfil `seed`** | En producción no debe haber usuarios con clave conocida |
 | **Respaldos verificados** | Atlas hace copias automáticas, pero una copia que nunca se restauró no es un respaldo |
