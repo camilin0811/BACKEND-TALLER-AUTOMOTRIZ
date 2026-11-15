@@ -113,8 +113,15 @@ public class CargaDatosIniciales implements ApplicationRunner {
         return cliente.getId();
     }
 
+    /**
+     * Tres mecanicos, no uno.
+     *
+     * <p>Con un solo mecanico la demostracion se agota: al asignarlo queda
+     * ocupado, y si la orden se bloquea esperando repuesto no se libera.
+     */
     private void cargarPersonal() {
-        Mecanico mecanico = Mecanico.nuevo("Mecanico de Prueba", "20000001", "MEC-01", "frenos");
-        mecanicos.guardar(mecanico);
+        mecanicos.guardar(Mecanico.nuevo("Mecanico de Prueba Uno", "20000001", "MEC-01", "frenos"));
+        mecanicos.guardar(Mecanico.nuevo("Mecanico de Prueba Dos", "20000002", "MEC-02", "motor"));
+        mecanicos.guardar(Mecanico.nuevo("Mecanico de Prueba Tres", "20000003", "MEC-03", "electricidad"));
     }
 }
