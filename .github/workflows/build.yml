@@ -31,3 +31,34 @@ jobs:
         with:
           name: cobertura-jacoco
           path: target/site/jacoco/
+
+  imagen:
+    runs-on: ubuntu-latest
+    needs: verificar
+    steps:
+      - uses: actions/checkout@v4
+
+      # Construir la imagen en CI es la unica verificacion real de que el
+      # Dockerfile funciona. Revisarlo a ojo no prueba nada.
+      - name: Construir la imagen
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          tags: taller-backend:ci
+
+      - name: Comprobar que el jar arranca dentro de la imagen
+        run: |
+          docker run --rm -d --name prueba             -e JWT_SECRETO=secreto-de-prueba-con-mas-de-32-caracteres             -e MONGODB_URI=mongodb://no-existe:27017/taller             -p 8080:8080 taller-backend:ci
+          # Sin Mongo la aplicacion falla al crear los indices: eso se espera.
+          # Lo que se comprueba aqui es que la imagen ejecuta el jar y que el
+          # fallo es de conexion, no de empaquetado.
+          sleep 45
+          docker logs prueba 2>&1 | tail -40 > salida.txt || true
+          docker rm -f prueba || true
+          if grep -q "Unable to start\|MongoTimeoutException\|Started TallerApplication" salida.txt; then
+            echo "La imagen ejecuta la aplicacion correctamente"
+          else
+            echo "La imagen no llego a ejecutar la aplicacion"; cat salida.txt; exit 1
+          fi

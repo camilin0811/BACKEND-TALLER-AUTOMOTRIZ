@@ -1,0 +1,38 @@
+# Levanta el backend con su MongoDB para una demostracion local.
+#   docker compose up --build
+#
+# Para apuntar a Atlas en vez del Mongo local, exportar MONGODB_URI antes.
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: taller-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - datos-mongo:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: .
+    container_name: taller-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      # El perfil seed carga catalogo y usuarios de demostracion.
+      SPRING_PROFILES_ACTIVE: seed
+      MONGODB_URI: ${MONGODB_URI:-mongodb://mongo:27017/taller}
+      # En una demostracion local vale un secreto fijo; en produccion va
+      # inyectado por el proveedor y nunca en un archivo versionado.
+      JWT_SECRETO: ${JWT_SECRETO:-demo-local-secreto-de-al-menos-32-caracteres}
+      CORS_ORIGENES: ${CORS_ORIGENES:-http://localhost:5173,http://localhost:4173}
+
+volumes:
+  datos-mongo:
