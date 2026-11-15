@@ -5,6 +5,7 @@ import com.taller.dominio.modelo.CanalAprobacion;
 import com.taller.dominio.modelo.EstadoOrden;
 import com.taller.dominio.modelo.TipoVehiculo;
 import com.taller.dominio.puerto.FacturacionElectronica;
+import com.taller.dominio.puerto.EmisorTokens;
 import com.taller.dominio.puerto.PasarelaPagos;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -220,6 +221,25 @@ class EventosYExcepcionesTest {
             assertThat(aprobada.referencia()).isEqualTo("APR-1");
             assertThat(negada.aprobada()).isFalse();
             assertThat(negada.motivoRechazo()).isEqualTo("Fondos");
+        }
+
+        @Test
+        @DisplayName("la credencial emitida transporta token y vigencia")
+        void credencialDeSesion() {
+            EmisorTokens.Credencial c = new EmisorTokens.Credencial("abc.def.ghi", 28800);
+
+            assertThat(c.token()).isEqualTo("abc.def.ghi");
+            assertThat(c.expiraEnSegundos()).isEqualTo(28800);
+        }
+
+        @Test
+        @DisplayName("la identidad verificada transporta usuario y rol")
+        void identidadVerificada() {
+            EmisorTokens.Identidad i = new EmisorTokens.Identidad("usr-1", "recepcion01", "RECEPCIONISTA");
+
+            assertThat(i.idUsuario()).isEqualTo("usr-1");
+            assertThat(i.usuario()).isEqualTo("recepcion01");
+            assertThat(i.rol()).isEqualTo("RECEPCIONISTA");
         }
 
         @Test

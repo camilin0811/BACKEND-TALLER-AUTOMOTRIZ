@@ -17,6 +17,13 @@ server:
     include-stacktrace: never
 
 taller:
+  seguridad:
+    jwt:
+      # Obligatorio. En produccion se inyecta por variable de entorno; el valor
+      # de desarrollo nunca debe usarse fuera de la maquina local.
+      secreto: ${JWT_SECRETO:desarrollo-local-cambiar-en-produccion-32+}
+      duracion-segundos: ${JWT_DURACION:28800}
+      emisor: taller-backend
   cors:
     # Origenes del frontend. En produccion se sobrescribe por variable de entorno.
     origenes: ${CORS_ORIGENES:http://localhost:5173,http://localhost:4173}

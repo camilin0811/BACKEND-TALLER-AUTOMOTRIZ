@@ -6,12 +6,14 @@ import com.taller.dominio.modelo.Mecanico;
 import com.taller.dominio.modelo.Motocicleta;
 import com.taller.dominio.modelo.Proveedor;
 import com.taller.dominio.modelo.Repuesto;
+import com.taller.dominio.modelo.Rol;
 import com.taller.dominio.modelo.Servicio;
 import com.taller.dominio.puerto.ClienteRepositorio;
 import com.taller.dominio.puerto.MecanicoRepositorio;
 import com.taller.dominio.puerto.RepuestoRepositorio;
 import com.taller.dominio.puerto.ServicioRepositorio;
 import com.taller.dominio.puerto.VehiculoRepositorio;
+import com.taller.aplicacion.servicio.AutenticacionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -41,15 +43,17 @@ public class CargaDatosIniciales implements ApplicationRunner {
     private final ClienteRepositorio clientes;
     private final VehiculoRepositorio vehiculos;
     private final MecanicoRepositorio mecanicos;
+    private final AutenticacionService autenticacion;
 
     public CargaDatosIniciales(ServicioRepositorio servicios, RepuestoRepositorio repuestos,
                                ClienteRepositorio clientes, VehiculoRepositorio vehiculos,
-                               MecanicoRepositorio mecanicos) {
+                               MecanicoRepositorio mecanicos, AutenticacionService autenticacion) {
         this.servicios = servicios;
         this.repuestos = repuestos;
         this.clientes = clientes;
         this.vehiculos = vehiculos;
         this.mecanicos = mecanicos;
+        this.autenticacion = autenticacion;
     }
 
     @Override
@@ -63,6 +67,7 @@ public class CargaDatosIniciales implements ApplicationRunner {
         cargarInventario();
         String idCliente = cargarClienteConVehiculos();
         cargarPersonal();
+        cargarUsuarios();
 
         log.info("Carga inicial lista. Cliente de prueba: {} | placas ABC123 (automovil) y XYZ12D (motocicleta)",
                 idCliente);
@@ -111,6 +116,29 @@ public class CargaDatosIniciales implements ApplicationRunner {
                 "DEMOVIN0000000002", 150, cliente.getId(), "MONOCILINDRICO", 4, "NAKED", true));
 
         return cliente.getId();
+    }
+
+    /**
+     * Usuarios de demostracion, uno por rol.
+     *
+     * <p>La clave es la misma para los tres y queda escrita aqui a proposito:
+     * es un dato de desarrollo, no un secreto. En un despliegue real este
+     * perfil no se activa y las credenciales se crean una a una.
+     */
+    private void cargarUsuarios() {
+        final String claveDemo = "taller2026";
+        crearUsuario("admin", claveDemo, Rol.ADMINISTRADOR, "Administrador de Prueba");
+        crearUsuario("recepcion01", claveDemo, Rol.RECEPCIONISTA, "Recepcionista de Prueba");
+        crearUsuario("mecanico01", claveDemo, Rol.MECANICO, "Mecanico de Prueba Uno");
+        log.info("Usuarios de demostracion creados: admin, recepcion01, mecanico01 (clave: {})", claveDemo);
+    }
+
+    private void crearUsuario(String usuario, String clave, Rol rol, String nombre) {
+        try {
+            autenticacion.registrar(usuario, clave, rol, nombre, null);
+        } catch (RuntimeException e) {
+            log.debug("El usuario {} ya existia: {}", usuario, e.getMessage());
+        }
     }
 
     /**
