@@ -50,15 +50,16 @@ jobs:
 
       - name: Comprobar que el jar arranca dentro de la imagen
         run: |
-          docker run --rm -d --name prueba             -e JWT_SECRETO=secreto-de-prueba-con-mas-de-32-caracteres             -e MONGODB_URI=mongodb://no-existe:27017/taller             -p 8080:8080 taller-backend:ci
-          # Sin Mongo la aplicacion falla al crear los indices: eso se espera.
-          # Lo que se comprueba aqui es que la imagen ejecuta el jar y que el
-          # fallo es de conexion, no de empaquetado.
-          sleep 45
-          docker logs prueba 2>&1 | tail -40 > salida.txt || true
-          docker rm -f prueba || true
-          if grep -q "Unable to start\|MongoTimeoutException\|Started TallerApplication" salida.txt; then
-            echo "La imagen ejecuta la aplicacion correctamente"
+          # Se ejecuta en primer plano y se captura la salida: la aplicacion
+          # termina sola al no encontrar MongoDB, y con --rm el contenedor
+          # desaparece antes de poder leerle los registros.
+          timeout 150 docker run --name prueba             -e JWT_SECRETO=secreto-de-prueba-con-mas-de-32-caracteres             -e MONGODB_URI=mongodb://no-existe:27017/taller             taller-backend:ci > salida.txt 2>&1 || true
+          docker rm -f prueba > /dev/null 2>&1 || true
+          echo "----- ultimas lineas -----"; tail -15 salida.txt
+          # Que arranque Spring y falle por conexion es exactamente lo
+          # esperado: prueba que la imagen empaqueta y ejecuta el jar.
+          if grep -qE "MongoTimeoutException|Started TallerApplication|APPLICATION FAILED TO START" salida.txt; then
+            echo "OK: la imagen ejecuta la aplicacion"
           else
-            echo "La imagen no llego a ejecutar la aplicacion"; cat salida.txt; exit 1
+            echo "FALLO: la imagen no llego a ejecutar la aplicacion"; exit 1
           fi
