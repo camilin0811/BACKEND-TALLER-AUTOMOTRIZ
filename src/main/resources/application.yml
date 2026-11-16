@@ -1,6 +1,11 @@
 spring:
   application:
     name: taller-backend
+  main:
+    # Los beans se crean cuando alguien los usa, no todos al arrancar: en el
+    # plan gratuito de Render el servicio despierta de cero en cada visita y
+    # cada segundo de arranque lo espera un usuario.
+    lazy-initialization: true
   data:
     mongodb:
       uri: ${MONGODB_URI:mongodb://localhost:27017/taller}

@@ -12,6 +12,7 @@ import com.taller.dominio.puerto.ClienteRepositorio;
 import com.taller.dominio.puerto.MecanicoRepositorio;
 import com.taller.dominio.puerto.RepuestoRepositorio;
 import com.taller.dominio.puerto.ServicioRepositorio;
+import com.taller.dominio.puerto.UsuarioRepositorio;
 import com.taller.dominio.puerto.VehiculoRepositorio;
 import com.taller.aplicacion.servicio.AutenticacionService;
 import org.slf4j.Logger;
@@ -44,16 +45,19 @@ public class CargaDatosIniciales implements ApplicationRunner {
     private final VehiculoRepositorio vehiculos;
     private final MecanicoRepositorio mecanicos;
     private final AutenticacionService autenticacion;
+    private final UsuarioRepositorio usuarios;
 
     public CargaDatosIniciales(ServicioRepositorio servicios, RepuestoRepositorio repuestos,
                                ClienteRepositorio clientes, VehiculoRepositorio vehiculos,
-                               MecanicoRepositorio mecanicos, AutenticacionService autenticacion) {
+                               MecanicoRepositorio mecanicos, AutenticacionService autenticacion,
+                               UsuarioRepositorio usuarios) {
         this.servicios = servicios;
         this.repuestos = repuestos;
         this.clientes = clientes;
         this.vehiculos = vehiculos;
         this.mecanicos = mecanicos;
         this.autenticacion = autenticacion;
+        this.usuarios = usuarios;
     }
 
     @Override
@@ -131,17 +135,33 @@ public class CargaDatosIniciales implements ApplicationRunner {
      */
     private void cargarUsuarios() {
         final String claveDemo = "taller2026";
-        crearUsuario("admin", claveDemo, Rol.ADMINISTRADOR, "Administrador de Prueba");
-        crearUsuario("recepcion01", claveDemo, Rol.RECEPCIONISTA, "Recepcionista de Prueba");
-        crearUsuario("mecanico01", claveDemo, Rol.MECANICO, "Mecanico de Prueba Uno");
-        log.info("Usuarios de demostracion creados: admin, recepcion01, mecanico01 (clave: {})", claveDemo);
+        int creados = 0;
+        creados += crearUsuario("admin", claveDemo, Rol.ADMINISTRADOR, "Administrador de Prueba");
+        creados += crearUsuario("recepcion01", claveDemo, Rol.RECEPCIONISTA, "Recepcionista de Prueba");
+        creados += crearUsuario("mecanico01", claveDemo, Rol.MECANICO, "Mecanico de Prueba Uno");
+        if (creados > 0) {
+            log.info("Usuarios de demostracion creados: {} (clave: {})", creados, claveDemo);
+        } else {
+            log.info("Los usuarios de demostracion ya existian; no se recargo nada");
+        }
     }
 
-    private void crearUsuario(String usuario, String clave, Rol rol, String nombre) {
+    /**
+     * Pregunta antes de registrar en lugar de registrar y capturar el
+     * duplicado: registrar calcula un hash BCrypt, que es lento a proposito,
+     * y pagarlo tres veces en cada arranque solo para descubrir que los
+     * usuarios ya existian alarga el despertar del servidor.
+     */
+    private int crearUsuario(String usuario, String clave, Rol rol, String nombre) {
+        if (usuarios.buscarPorUsuario(usuario).isPresent()) {
+            return 0;
+        }
         try {
             autenticacion.registrar(usuario, clave, rol, nombre, null);
+            return 1;
         } catch (RuntimeException e) {
             log.debug("El usuario {} ya existia: {}", usuario, e.getMessage());
+            return 0;
         }
     }
 

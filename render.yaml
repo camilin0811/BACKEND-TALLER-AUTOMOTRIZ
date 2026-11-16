@@ -45,5 +45,10 @@ services:
       # El plan gratuito da 512 MB. El 75% por defecto del Dockerfile deja al
       # heap sin espacio para metaspace y pilas, y la JVM muere al arrancar.
       # Con 60% y el metaspace acotado, entra con margen.
+      #
+      # TieredStopAtLevel=1 limita el JIT al compilador rapido: arranca antes
+      # a cambio de menos velocidad pico, el trato correcto para un servicio
+      # que despierta de cero en cada visita. Xshare:auto reutiliza las
+      # clases precargadas del JRE si el archivo CDS esta disponible.
       - key: JAVA_OPTS
-        value: "-XX:MaxRAMPercentage=60 -XX:+UseSerialGC -XX:MaxMetaspaceSize=128m"
+        value: "-XX:MaxRAMPercentage=60 -XX:+UseSerialGC -XX:MaxMetaspaceSize=128m -XX:TieredStopAtLevel=1 -Xshare:auto"
