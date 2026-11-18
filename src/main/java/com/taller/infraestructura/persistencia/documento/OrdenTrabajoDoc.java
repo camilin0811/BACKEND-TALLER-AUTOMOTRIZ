@@ -37,6 +37,7 @@ public class OrdenTrabajoDoc {
     public List<LineaServicioDoc> servicios = new ArrayList<>();
     public List<LineaRepuestoDoc> repuestos = new ArrayList<>();
     public List<CambioEstadoDoc> historialEstados = new ArrayList<>();
+    public List<AnotacionDoc> anotaciones = new ArrayList<>();
 
     public BigDecimal total;
     public String idFactura;
@@ -91,6 +92,13 @@ public class OrdenTrabajoDoc {
         public String nombre;
         public int cantidad;
         public BigDecimal precioUnitario;
+    }
+
+    public static class AnotacionDoc {
+        public Instant fecha;
+        public String usuario;
+        public String tipo;
+        public String descripcion;
     }
 
     public static class CambioEstadoDoc {

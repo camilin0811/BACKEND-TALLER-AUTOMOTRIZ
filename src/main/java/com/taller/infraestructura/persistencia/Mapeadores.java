@@ -132,6 +132,11 @@ public final class Mapeadores {
         }
         orden.rehidratar(diags, aCotizacion(d.cotizacion), servicios, repuestos, historial);
         orden.restaurarMotivoIngreso(d.motivoIngreso);
+        if (d.anotaciones != null) {
+            orden.restaurarAnotaciones(d.anotaciones.stream()
+                    .map(a -> new com.taller.dominio.modelo.AnotacionHistorial(a.fecha, a.usuario, a.tipo, a.descripcion))
+                    .toList());
+        }
         return orden;
     }
 
@@ -151,6 +156,14 @@ public final class Mapeadores {
         d.idFactura = o.getIdFactura();
         d.version = o.getVersion();
         d.motivoIngreso = o.getMotivoIngreso();
+        for (var a : o.getAnotaciones()) {
+            OrdenTrabajoDoc.AnotacionDoc ad = new OrdenTrabajoDoc.AnotacionDoc();
+            ad.fecha = a.fecha();
+            ad.usuario = a.usuario();
+            ad.tipo = a.tipo();
+            ad.descripcion = a.descripcion();
+            d.anotaciones.add(ad);
+        }
 
         for (Diagnostico diag : o.getDiagnosticos()) {
             OrdenTrabajoDoc.DiagnosticoDoc dd = new OrdenTrabajoDoc.DiagnosticoDoc();

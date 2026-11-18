@@ -17,7 +17,7 @@ class MecanicoYRecepcionTest {
     void asignarEnDiagnostico() {
         OrdenTrabajo orden = OrdenTrabajoMother.enDiagnostico();
 
-        assertThat(orden.cambiarMecanico(OrdenTrabajoMother.mecanico())).isEmpty();
+        assertThat(orden.cambiarMecanico(OrdenTrabajoMother.mecanico(), "recepcion01")).isEmpty();
         assertThat(orden.getMecanico()).isEqualTo(OrdenTrabajoMother.mecanico());
         assertThat(orden.getEstado()).isEqualTo(EstadoOrden.EN_DIAGNOSTICO);
     }
@@ -28,7 +28,7 @@ class MecanicoYRecepcionTest {
         OrdenTrabajo orden = OrdenTrabajoMother.enReparacion();
         ReferenciaMecanico anterior = orden.getMecanico();
 
-        assertThat(orden.cambiarMecanico(OTRO)).contains(anterior);
+        assertThat(orden.cambiarMecanico(OTRO, "recepcion01")).contains(anterior);
         assertThat(orden.getMecanico()).isEqualTo(OTRO);
         assertThat(orden.getEstado()).isEqualTo(EstadoOrden.EN_REPARACION);
     }
@@ -36,7 +36,7 @@ class MecanicoYRecepcionTest {
     @Test
     @DisplayName("una orden cerrada ya no se reasigna")
     void cerradaNoSeReasigna() {
-        assertThatThrownBy(() -> OrdenTrabajoMother.cerrada().cambiarMecanico(OTRO))
+        assertThatThrownBy(() -> OrdenTrabajoMother.cerrada().cambiarMecanico(OTRO, "recepcion01"))
                 .isInstanceOf(ReglaNegocioException.class)
                 .hasMessageContaining("Cerrada");
     }
@@ -45,7 +45,7 @@ class MecanicoYRecepcionTest {
     @DisplayName("comenzar la reparación usa el mecánico asignado antes")
     void comenzarConElAsignado() {
         OrdenTrabajo orden = OrdenTrabajoMother.aprobada();
-        orden.cambiarMecanico(OTRO);
+        orden.cambiarMecanico(OTRO, "recepcion01");
 
         orden.asignarMecanico(null, "recepcion01");
 
@@ -70,6 +70,22 @@ class MecanicoYRecepcionTest {
         assertThat(orden.getEstado()).isEqualTo(EstadoOrden.RECIBIDA);
         assertThat(orden.getMotivoIngreso()).isEqualTo("Ruido al frenar");
         assertThat(orden.getHistorialEstados().get(0).usuario()).isEqualTo("recepcion01");
+    }
+
+    @Test
+    @DisplayName("asignar y cambiar el mecánico queda en el historial con quién lo hizo")
+    void historialDeMecanico() {
+        OrdenTrabajo orden = OrdenTrabajoMother.enDiagnostico();
+        orden.cambiarMecanico(OrdenTrabajoMother.mecanico(), "recepcion01");
+        orden.cambiarMecanico(OTRO, "admin");
+        orden.cambiarMecanico(OTRO, "admin");
+
+        assertThat(orden.getAnotaciones()).hasSize(2);
+        assertThat(orden.getAnotaciones().get(0).descripcion()).isEqualTo("Mecánico asignado: Luis Rojas");
+        assertThat(orden.getAnotaciones().get(0).usuario()).isEqualTo("recepcion01");
+        assertThat(orden.getAnotaciones().get(1).descripcion())
+                .isEqualTo("Mecánico cambiado de Luis Rojas a Ana Pérez");
+        assertThat(orden.getAnotaciones().get(1).tipo()).isEqualTo(AnotacionHistorial.MECANICO);
     }
 
     @Test

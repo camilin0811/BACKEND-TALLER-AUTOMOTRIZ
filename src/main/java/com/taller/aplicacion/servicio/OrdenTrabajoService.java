@@ -127,14 +127,14 @@ public class OrdenTrabajoService {
      * estado. El anterior queda libre y el nuevo ocupado.
      */
     @Transactional
-    public OrdenTrabajo cambiarMecanico(String idOrden, String idMecanico) {
+    public OrdenTrabajo cambiarMecanico(String idOrden, String idMecanico, String usuario) {
         OrdenTrabajo orden = obtener(idOrden);
         String anterior = orden.getMecanico() == null ? null : orden.getMecanico().id();
         if (idMecanico.equals(anterior)) {
             return orden;
         }
         Mecanico mecanico = mecanicoParaAsignar(idMecanico, anterior);
-        orden.cambiarMecanico(new ReferenciaMecanico(mecanico.getId(), mecanico.getNombre()));
+        orden.cambiarMecanico(new ReferenciaMecanico(mecanico.getId(), mecanico.getNombre()), usuario);
         ocuparYLiberar(mecanico, anterior);
         return persistirYPublicar(orden);
     }

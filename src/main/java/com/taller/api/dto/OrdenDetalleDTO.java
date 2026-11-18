@@ -32,6 +32,12 @@ public record OrdenDetalleDTO(String id,
      * Un cambio de estado. {@code nombre} y {@code rol} los completa la API
      * interna; la publica no expone quien del taller hizo cada cambio.
      */
-    public record HitoDTO(String estado, Instant fecha, String usuario, String nombre, String rol) {
+    public record HitoDTO(String estado, Instant fecha, String usuario, String nombre, String rol,
+                          String tipo, String descripcion) {
+
+        /** Cambio de estado, el caso de siempre. */
+        public HitoDTO(String estado, Instant fecha, String usuario, String nombre, String rol) {
+            this(estado, fecha, usuario, nombre, rol, "ESTADO", null);
+        }
     }
 }

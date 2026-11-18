@@ -82,15 +82,23 @@ public class OrdenTrabajoControlador {
     }
 
     @GetMapping("/{id}/historial")
-    @Operation(summary = "Cambios de estado con quién los hizo (nombre y rol) y cuándo")
+    @Operation(summary = "Cambios de estado y de mecánico, con quién los hizo (nombre y rol) y cuándo")
     public List<OrdenDetalleDTO.HitoDTO> historial(@PathVariable String id) {
         var autor = directorio.resolutor();
-        return ordenes.historial(id).stream()
-                .map(h -> {
-                    var quien = autor.apply(h.usuario());
-                    return new OrdenDetalleDTO.HitoDTO(h.estado().name(), h.fecha(), h.usuario(),
-                            quien.nombre(), quien.rol());
-                })
+        OrdenTrabajo orden = ordenes.obtener(id);
+        var estados = orden.getHistorialEstados().stream().map(h -> {
+            var quien = autor.apply(h.usuario());
+            return new OrdenDetalleDTO.HitoDTO(h.estado().name(), h.fecha(), h.usuario(),
+                    quien.nombre(), quien.rol());
+        });
+        var anotaciones = orden.getAnotaciones().stream().map(a -> {
+            var quien = autor.apply(a.usuario());
+            return new OrdenDetalleDTO.HitoDTO(null, a.fecha(), a.usuario(), quien.nombre(), quien.rol(),
+                    a.tipo(), a.descripcion());
+        });
+        // Una sola linea de tiempo, en orden cronologico.
+        return java.util.stream.Stream.concat(estados, anotaciones)
+                .sorted(java.util.Comparator.comparing(OrdenDetalleDTO.HitoDTO::fecha))
                 .toList();
     }
 
@@ -98,8 +106,9 @@ public class OrdenTrabajoControlador {
     @PatchMapping("/{id}/mecanico")
     @Operation(summary = "Asigna o cambia el mecánico de una orden en trabajo, sin mover su estado")
     public OrdenDetalleDTO asignarMecanico(@PathVariable String id,
-                                           @Valid @RequestBody AsignarMecanicoDTO dto) {
-        return MapeadorApi.aDetalle(ordenes.cambiarMecanico(id, dto.idMecanico()));
+                                           @Valid @RequestBody AsignarMecanicoDTO dto,
+                                           Authentication autenticado) {
+        return MapeadorApi.aDetalle(ordenes.cambiarMecanico(id, dto.idMecanico(), autenticado.getName()));
     }
 
     @PatchMapping("/{id}/estado")

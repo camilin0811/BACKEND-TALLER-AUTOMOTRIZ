@@ -48,6 +48,7 @@ public class OrdenTrabajo {
     private final List<LineaServicio> servicios = new ArrayList<>();
     private final List<LineaRepuesto> repuestos = new ArrayList<>();
     private final List<CambioEstado> historialEstados = new ArrayList<>();
+    private final List<AnotacionHistorial> anotaciones = new ArrayList<>();
 
     private BigDecimal total;
     private String idFactura;
@@ -161,6 +162,7 @@ public class OrdenTrabajo {
             throw new ReglaNegocioException("SIN_MECANICO",
                     "Asigne un mecánico antes de comenzar la reparación");
         }
+        anotarCambioDeMecanico(this.mecanico, elegido, usuario);
         this.mecanico = elegido;
         cambiarEstado(EstadoOrden.EN_REPARACION, usuario);
     }
@@ -171,14 +173,36 @@ public class OrdenTrabajo {
      *
      * @return el mecanico anterior, para liberarlo; vacio si no habia
      */
-    public java.util.Optional<ReferenciaMecanico> cambiarMecanico(ReferenciaMecanico nuevo) {
+    public java.util.Optional<ReferenciaMecanico> cambiarMecanico(ReferenciaMecanico nuevo, String usuario) {
         if (!estado.enTrabajo()) {
             throw new ReglaNegocioException("MECANICO_NO_REASIGNABLE",
                     "Solo se asigna mecánico a una orden en trabajo, y esta está en «%s»".formatted(estado.etiqueta()));
         }
         ReferenciaMecanico anterior = this.mecanico;
+        anotarCambioDeMecanico(anterior, nuevo, usuario);
         this.mecanico = nuevo;
         return java.util.Optional.ofNullable(anterior);
+    }
+
+    private void anotarCambioDeMecanico(ReferenciaMecanico anterior, ReferenciaMecanico nuevo, String usuario) {
+        if (nuevo == null || (anterior != null && anterior.id().equals(nuevo.id()))) {
+            return;
+        }
+        String descripcion = anterior == null
+                ? "Mecánico asignado: %s".formatted(nuevo.nombre())
+                : "Mecánico cambiado de %s a %s".formatted(anterior.nombre(), nuevo.nombre());
+        anotaciones.add(new AnotacionHistorial(Instant.now(), usuario, AnotacionHistorial.MECANICO, descripcion));
+    }
+
+    public List<AnotacionHistorial> getAnotaciones() {
+        return java.util.Collections.unmodifiableList(anotaciones);
+    }
+
+    /** Solo para rehidratar desde la base de datos. */
+    public void restaurarAnotaciones(List<AnotacionHistorial> guardadas) {
+        if (guardadas != null) {
+            anotaciones.addAll(guardadas);
+        }
     }
 
     public void registrarRepuesto(LineaRepuesto linea) {
