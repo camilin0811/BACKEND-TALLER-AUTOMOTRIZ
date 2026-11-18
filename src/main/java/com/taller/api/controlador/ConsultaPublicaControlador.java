@@ -1,7 +1,7 @@
 package com.taller.api.controlador;
 
 import com.taller.api.dto.ConsultaPublicaDTO;
-import com.taller.api.dto.OrdenDetalleDTO;
+import com.taller.api.dto.ConsultaPublicaRespuestaDTO;
 import com.taller.api.mapeador.MapeadorApi;
 import com.taller.aplicacion.servicio.ClienteService;
 import com.taller.aplicacion.servicio.OrdenTrabajoService;
@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * Consulta publica del cliente.
@@ -46,7 +47,7 @@ public class ConsultaPublicaControlador {
 
     @PostMapping("/orden")
     @Operation(summary = "Estado de la orden más reciente de un vehículo, verificando el documento del cliente")
-    public OrdenDetalleDTO consultar(@Valid @RequestBody ConsultaPublicaDTO consulta) {
+    public ConsultaPublicaRespuestaDTO consultar(@Valid @RequestBody ConsultaPublicaDTO consulta) {
         String placa = consulta.placa().toUpperCase();
 
         // La misma respuesta si el documento no existe, si la placa no existe
@@ -60,12 +61,27 @@ public class ConsultaPublicaControlador {
             throw sinResultado();
         }
 
-        OrdenTrabajo suya = ordenes.listarPorPlaca(placa).stream()
+        List<OrdenTrabajo> suyas = ordenes.listarPorPlaca(placa).stream()
                 .filter(o -> o.getCliente() != null && cliente.getId().equals(o.getCliente().id()))
-                .max(Comparator.comparing(OrdenTrabajo::getFechaIngreso))
-                .orElseThrow(ConsultaPublicaControlador::sinResultado);
+                .sorted(Comparator.comparing(OrdenTrabajo::getFechaIngreso).reversed())
+                .toList();
+        if (suyas.isEmpty()) {
+            throw sinResultado();
+        }
 
-        return MapeadorApi.aDetalle(suya);
+        // La que le importa al cliente es la que sigue en curso; si ya
+        // retiro el vehiculo de todas, la ultima.
+        OrdenTrabajo principal = suyas.stream()
+                .filter(o -> o.getEstado().vehiculoEnTaller())
+                .findFirst()
+                .orElse(suyas.get(0));
+
+        List<ConsultaPublicaRespuestaDTO.OrdenHistorial> historial = suyas.stream()
+                .map(o -> new ConsultaPublicaRespuestaDTO.OrdenHistorial(o.getNumero(),
+                        o.getEstado().name(), o.getFechaIngreso(), o.getFechaEntrega(), o.getTotal()))
+                .toList();
+
+        return new ConsultaPublicaRespuestaDTO(MapeadorApi.aDetalle(principal), historial);
     }
 
     private static RecursoNoEncontradoException sinResultado() {

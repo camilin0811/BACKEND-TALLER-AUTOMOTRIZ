@@ -66,6 +66,14 @@ public enum EstadoOrden {
         return TRANSICIONES.get(this).contains(destino);
     }
 
+    /**
+     * El vehiculo sigue en el taller: cualquier estado salvo ENTREGADA.
+     * Una orden rechazada tambien cuenta, porque el cliente aun no lo retira.
+     */
+    public boolean vehiculoEnTaller() {
+        return this != ENTREGADA;
+    }
+
     public boolean esTerminal() {
         return TRANSICIONES.get(this).isEmpty();
     }
