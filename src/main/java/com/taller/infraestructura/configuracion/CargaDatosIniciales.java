@@ -9,7 +9,9 @@ import com.taller.dominio.modelo.Repuesto;
 import com.taller.dominio.modelo.Rol;
 import com.taller.dominio.modelo.Servicio;
 import com.taller.dominio.puerto.ClienteRepositorio;
+import com.taller.dominio.modelo.EstadoOrdenCompra;
 import com.taller.dominio.puerto.MecanicoRepositorio;
+import com.taller.dominio.puerto.OrdenCompraRepositorio;
 import com.taller.dominio.puerto.RepuestoRepositorio;
 import com.taller.dominio.puerto.ServicioRepositorio;
 import com.taller.dominio.puerto.UsuarioRepositorio;
@@ -51,11 +53,13 @@ public class CargaDatosIniciales implements ApplicationRunner {
     private final AutenticacionService autenticacion;
     private final UsuarioRepositorio usuarios;
     private final MongoTemplate mongo;
+    private final OrdenCompraRepositorio ordenesCompra;
 
     public CargaDatosIniciales(ServicioRepositorio servicios, RepuestoRepositorio repuestos,
                                ClienteRepositorio clientes, VehiculoRepositorio vehiculos,
                                MecanicoRepositorio mecanicos, AutenticacionService autenticacion,
-                               UsuarioRepositorio usuarios, MongoTemplate mongo) {
+                               UsuarioRepositorio usuarios, MongoTemplate mongo,
+                               OrdenCompraRepositorio ordenesCompra) {
         this.servicios = servicios;
         this.repuestos = repuestos;
         this.clientes = clientes;
@@ -64,6 +68,7 @@ public class CargaDatosIniciales implements ApplicationRunner {
         this.autenticacion = autenticacion;
         this.usuarios = usuarios;
         this.mongo = mongo;
+        this.ordenesCompra = ordenesCompra;
     }
 
     @Override
@@ -73,6 +78,8 @@ public class CargaDatosIniciales implements ApplicationRunner {
         // ninguna credencial y nadie podria entrar.
         cargarUsuarios();
         corregirNombresSinTilde();
+        corregirCatalogoSinTilde();
+        recalcularBorradoresDeCompra();
 
         if (!servicios.listarActivos().isEmpty()) {
             log.info("El catalogo ya tiene datos; solo se verificaron los usuarios");
@@ -91,8 +98,8 @@ public class CargaDatosIniciales implements ApplicationRunner {
     private void cargarCatalogoDeServicios() {
         guardarServicio("SRV-001", "Cambio de aceite y filtro", "95000", 0.8);
         guardarServicio("SRV-012", "Cambio de pastillas de freno delanteras", "120000", 1.5);
-        guardarServicio("SRV-020", "Sincronizacion de motor", "210000", 2.5);
-        guardarServicio("SRV-031", "Revision general de 30 puntos", "80000", 1.0);
+        guardarServicio("SRV-020", "Sincronización de motor", "210000", 2.5);
+        guardarServicio("SRV-031", "Revisión general de 30 puntos", "80000", 1.0);
         guardarServicio("SRV-040", "Ajuste de cadena y kit de arrastre", "75000", 1.0);
         guardarServicio("SRV-050", "Diagnóstico electrónico OBD-II", "60000", 0.5);
     }
@@ -104,8 +111,8 @@ public class CargaDatosIniciales implements ApplicationRunner {
     private void cargarInventario() {
         guardarRepuesto("PAST-001", "Pastillas de freno delanteras", "90000", 10, 5);
         guardarRepuesto("FILT-009", "Filtro de aceite", "28000", 3, 6);
-        guardarRepuesto("ACEI-005", "Aceite sintetico 5W-30 (litro)", "42000", 24, 10);
-        guardarRepuesto("BUJI-002", "Bujia de iridio", "35000", 16, 8);
+        guardarRepuesto("ACEI-005", "Aceite sintético 5W-30 (litro)", "42000", 24, 10);
+        guardarRepuesto("BUJI-002", "Bujía de iridio", "35000", 16, 8);
         guardarRepuesto("CADE-011", "Kit de arrastre para motocicleta", "180000", 4, 2);
     }
 
@@ -194,6 +201,76 @@ public class CargaDatosIniciales implements ApplicationRunner {
         if (corregidos > 0) {
             log.info("Se corrigieron {} nombres de demostracion sin tilde", corregidos);
         }
+    }
+
+    /**
+     * Catalogo sembrado antes de corregir las tildes. El nombre tambien quedo
+     * copiado en las lineas de cada orden. Como la consulta solo encuentra
+     * los nombres viejos, no hace nada en los arranques siguientes.
+     */
+    private void corregirCatalogoSinTilde() {
+        String[][] servicios = {
+                {"Sincronizacion de motor", "Sincronización de motor"},
+                {"Revision general de 30 puntos", "Revisión general de 30 puntos"},
+                {"Diagnostico electronico OBD-II", "Diagnóstico electrónico OBD-II"},
+        };
+        String[][] repuestosViejos = {
+                {"Aceite sintetico 5W-30 (litro)", "Aceite sintético 5W-30 (litro)"},
+                {"Bujia de iridio", "Bujía de iridio"},
+        };
+        long corregidos = 0;
+        for (String[] par : servicios) {
+            corregidos += renombrar("servicios", "descripcion", par[0], par[1]);
+            corregidos += renombrarEnLista("servicios", "descripcion", par[0], par[1]);
+        }
+        for (String[] par : repuestosViejos) {
+            corregidos += renombrar("repuestos", "nombre", par[0], par[1]);
+            corregidos += renombrarEnLista("repuestos", "nombre", par[0], par[1]);
+        }
+        if (corregidos > 0) {
+            log.info("Se corrigieron {} nombres del catalogo sin tilde", corregidos);
+        }
+    }
+
+    /** Renombra dentro de una lista de lineas de las ordenes de trabajo. */
+    private long renombrarEnLista(String lista, String campo, String viejo, String nuevo) {
+        Update cambio = new Update().set(lista + ".$[linea]." + campo, nuevo)
+                .filterArray(Criteria.where("linea." + campo).is(viejo));
+        return mongo.updateMulti(Query.query(Criteria.where(lista + "." + campo).is(viejo)),
+                cambio, "ordenes").getModifiedCount();
+    }
+
+    /**
+     * Las ordenes de compra en borrador creadas con la regla anterior podian
+     * pedir la cantidad de un consumo rechazado (la OC-0001 pedia 99 filtros
+     * con stock 3 y minimo 6). Se recalculan una sola vez con la regla actual,
+     * (minimo x 2) - stock. Despues no se vuelven a tocar: desde ahora un
+     * borrador se puede editar a mano y recalcularlo pisaria esa decision.
+     */
+    private void recalcularBorradoresDeCompra() {
+        final String marca = "reposicion-regla-doble-minimo";
+        if (mongo.exists(Query.query(Criteria.where("_id").is(marca)), "migraciones")) {
+            return;
+        }
+        int recalculadas = 0;
+        for (var compra : ordenesCompra.listar()) {
+            if (compra.getEstado() != EstadoOrdenCompra.BORRADOR) {
+                continue;
+            }
+            for (var item : compra.getItems()) {
+                var repuesto = repuestos.buscarPorCodigo(item.getCodigoRepuesto()).orElse(null);
+                if (repuesto != null && item.getCantidad() != repuesto.cantidadReposicion()) {
+                    log.info("Borrador {}: {} pasa de {} a {} unidades", compra.getNumero(),
+                            item.getCodigoRepuesto(), item.getCantidad(), repuesto.cantidadReposicion());
+                    compra.ajustarCantidad(item.getCodigoRepuesto(), repuesto.cantidadReposicion());
+                    recalculadas++;
+                }
+            }
+            ordenesCompra.guardar(compra);
+        }
+        mongo.insert(new org.bson.Document("_id", marca)
+                .append("aplicada", java.util.Date.from(java.time.Instant.now()))
+                .append("borradoresRecalculados", recalculadas), "migraciones");
     }
 
     private long renombrar(String coleccion, String campo, String viejo, String nuevo) {
