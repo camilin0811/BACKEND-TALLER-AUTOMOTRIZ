@@ -1,6 +1,8 @@
 package com.taller.api.controlador;
 
+import com.taller.api.dto.AjustarCantidadCompraDTO;
 import com.taller.api.dto.CrearRepuestoDTO;
+import com.taller.api.dto.RecepcionCompraDTO;
 import com.taller.aplicacion.servicio.InventarioService;
 import com.taller.dominio.modelo.MovimientoInventario;
 import com.taller.dominio.modelo.OrdenCompra;
@@ -57,11 +59,25 @@ public class InventarioControlador {
         return inventario.listarOrdenesCompra();
     }
 
+    /** Solo administrador: corrige la cantidad sugerida antes de enviar. */
+    @PatchMapping("/ordenes-compra/{id}/items/{codigo}")
+    @Operation(summary = "Ajusta la cantidad de un repuesto en una orden de compra en borrador")
+    public OrdenCompra ajustarCantidad(@PathVariable String id, @PathVariable String codigo,
+                                       @Valid @RequestBody AjustarCantidadCompraDTO dto) {
+        return inventario.ajustarCantidad(id, codigo, dto.cantidad());
+    }
+
+    /** Solo administrador: el pedido sale al proveedor. */
+    @PostMapping("/ordenes-compra/{id}/envio")
+    @Operation(summary = "Envía al proveedor una orden de compra en borrador")
+    public OrdenCompra enviar(@PathVariable String id) {
+        return inventario.enviar(id);
+    }
+
+    /** Administrador o recepcionista: registra lo que llego y suma el stock. */
     @PostMapping("/ordenes-compra/{id}/recepcion")
-    @Operation(summary = "Registra la recepcion total o parcial de un repuesto")
-    public ResponseEntity<OrdenCompra> recibir(@PathVariable String id,
-                                               @RequestParam String codigo,
-                                               @RequestParam int cantidad) {
-        return ResponseEntity.status(201).body(inventario.registrarRecepcion(id, codigo, cantidad));
+    @Operation(summary = "Registra la recepción total o parcial de un repuesto de una orden enviada")
+    public OrdenCompra recibir(@PathVariable String id, @Valid @RequestBody RecepcionCompraDTO dto) {
+        return inventario.registrarRecepcion(id, dto.codigo(), dto.cantidad());
     }
 }

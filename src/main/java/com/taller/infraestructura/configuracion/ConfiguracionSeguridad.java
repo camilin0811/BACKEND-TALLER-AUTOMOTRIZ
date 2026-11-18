@@ -56,7 +56,11 @@ public class ConfiguracionSeguridad {
 
                     // --- inventario
                     .requestMatchers(HttpMethod.POST, "/api/v1/repuestos/**").hasRole(ADM)
-                    .requestMatchers(HttpMethod.POST, "/api/v1/ordenes-compra/**").hasAnyRole(ADM, REC)
+                    // Compras: el administrador revisa, ajusta y envia al
+                    // proveedor; la recepcion registra la mercancia que llega.
+                    .requestMatchers(HttpMethod.POST, "/api/v1/ordenes-compra/*/recepcion").hasAnyRole(ADM, REC)
+                    .requestMatchers(HttpMethod.PATCH, "/api/v1/ordenes-compra/**").hasRole(ADM)
+                    .requestMatchers(HttpMethod.POST, "/api/v1/ordenes-compra/**").hasRole(ADM)
                     .requestMatchers("/api/v1/repuestos/**", "/api/v1/ordenes-compra/**")
                         .hasAnyRole(ADM, REC, MEC)
 

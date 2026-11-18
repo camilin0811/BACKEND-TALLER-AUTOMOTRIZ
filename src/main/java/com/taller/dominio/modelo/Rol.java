@@ -30,6 +30,7 @@ public enum Rol {
             Permiso.REGISTRAR_DIAGNOSTICO,
             Permiso.CERRAR_ORDEN,
             Permiso.LEER_INVENTARIO,
+            Permiso.RECIBIR_COMPRAS,
             Permiso.LEER_FACTURAS,
             Permiso.ESCRIBIR_FACTURAS,
             Permiso.LEER_CATALOGO)),
@@ -42,6 +43,7 @@ public enum Rol {
             Permiso.CERRAR_ORDEN,
             Permiso.LEER_INVENTARIO,
             Permiso.ESCRIBIR_INVENTARIO,
+            Permiso.RECIBIR_COMPRAS,
             Permiso.CONSUMIR_INVENTARIO,
             Permiso.LEER_FACTURAS,
             Permiso.LEER_CATALOGO,
@@ -58,7 +60,10 @@ public enum Rol {
         REGISTRAR_DIAGNOSTICO,
         CERRAR_ORDEN,
         LEER_INVENTARIO,
+        /** Revisar, editar y enviar ordenes de compra al proveedor. */
         ESCRIBIR_INVENTARIO,
+        /** Registrar la mercancia que llega de una orden de compra enviada. */
+        RECIBIR_COMPRAS,
         CONSUMIR_INVENTARIO,
         LEER_FACTURAS,
         VER_FACTURAS_PROPIAS,
