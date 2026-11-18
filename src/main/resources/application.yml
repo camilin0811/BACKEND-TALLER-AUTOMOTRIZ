@@ -29,6 +29,10 @@ taller:
       secreto: ${JWT_SECRETO:desarrollo-local-cambiar-en-produccion-32+}
       duracion-segundos: ${JWT_DURACION:28800}
       emisor: taller-backend
+  publico:
+    # Consultas por minuto y por IP en el portal del cliente: frena a quien
+    # intente adivinar documentos probando en bucle.
+    limite-por-minuto: ${PUBLICO_LIMITE_POR_MINUTO:10}
   cors:
     # Origenes del frontend. En produccion se sobrescribe por variable de entorno.
     origenes: ${CORS_ORIGENES:http://localhost:5173,http://localhost:4173}
