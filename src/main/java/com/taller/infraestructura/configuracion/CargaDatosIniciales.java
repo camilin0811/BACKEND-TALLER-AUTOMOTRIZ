@@ -20,6 +20,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -46,11 +50,12 @@ public class CargaDatosIniciales implements ApplicationRunner {
     private final MecanicoRepositorio mecanicos;
     private final AutenticacionService autenticacion;
     private final UsuarioRepositorio usuarios;
+    private final MongoTemplate mongo;
 
     public CargaDatosIniciales(ServicioRepositorio servicios, RepuestoRepositorio repuestos,
                                ClienteRepositorio clientes, VehiculoRepositorio vehiculos,
                                MecanicoRepositorio mecanicos, AutenticacionService autenticacion,
-                               UsuarioRepositorio usuarios) {
+                               UsuarioRepositorio usuarios, MongoTemplate mongo) {
         this.servicios = servicios;
         this.repuestos = repuestos;
         this.clientes = clientes;
@@ -58,6 +63,7 @@ public class CargaDatosIniciales implements ApplicationRunner {
         this.mecanicos = mecanicos;
         this.autenticacion = autenticacion;
         this.usuarios = usuarios;
+        this.mongo = mongo;
     }
 
     @Override
@@ -66,6 +72,7 @@ public class CargaDatosIniciales implements ApplicationRunner {
         // creada antes de que existiera la autenticacion se quedaria sin
         // ninguna credencial y nadie podria entrar.
         cargarUsuarios();
+        corregirNombresSinTilde();
 
         if (!servicios.listarActivos().isEmpty()) {
             log.info("El catalogo ya tiene datos; solo se verificaron los usuarios");
@@ -87,7 +94,7 @@ public class CargaDatosIniciales implements ApplicationRunner {
         guardarServicio("SRV-020", "Sincronizacion de motor", "210000", 2.5);
         guardarServicio("SRV-031", "Revision general de 30 puntos", "80000", 1.0);
         guardarServicio("SRV-040", "Ajuste de cadena y kit de arrastre", "75000", 1.0);
-        guardarServicio("SRV-050", "Diagnostico electronico OBD-II", "60000", 0.5);
+        guardarServicio("SRV-050", "Diagnóstico electrónico OBD-II", "60000", 0.5);
     }
 
     private void guardarServicio(String codigo, String descripcion, String precio, double horas) {
@@ -138,7 +145,7 @@ public class CargaDatosIniciales implements ApplicationRunner {
         int creados = 0;
         creados += crearUsuario("admin", claveDemo, Rol.ADMINISTRADOR, "Administrador de Prueba");
         creados += crearUsuario("recepcion01", claveDemo, Rol.RECEPCIONISTA, "Recepcionista de Prueba");
-        creados += crearUsuario("mecanico01", claveDemo, Rol.MECANICO, "Mecanico de Prueba Uno");
+        creados += crearUsuario("mecanico01", claveDemo, Rol.MECANICO, "Mecánico de Prueba Uno");
         if (creados > 0) {
             log.info("Usuarios de demostracion creados: {} (clave: {})", creados, claveDemo);
         } else {
@@ -166,14 +173,43 @@ public class CargaDatosIniciales implements ApplicationRunner {
     }
 
     /**
+     * Las bases sembradas antes de corregir las tildes guardaron "Mecanico de
+     * Prueba", y el nombre tambien quedo copiado dentro de cada orden. Se
+     * reemplaza una sola vez: la consulta solo encuentra los nombres viejos,
+     * asi que en los arranques siguientes no actualiza nada.
+     */
+    private void corregirNombresSinTilde() {
+        String[][] nombres = {
+                {"Mecanico de Prueba", "Mecánico de Prueba"},
+                {"Mecanico de Prueba Uno", "Mecánico de Prueba Uno"},
+                {"Mecanico de Prueba Dos", "Mecánico de Prueba Dos"},
+                {"Mecanico de Prueba Tres", "Mecánico de Prueba Tres"},
+        };
+        long corregidos = 0;
+        for (String[] par : nombres) {
+            corregidos += renombrar("empleados", "nombre", par[0], par[1]);
+            corregidos += renombrar("usuarios", "nombre", par[0], par[1]);
+            corregidos += renombrar("ordenes", "mecanico.nombre", par[0], par[1]);
+        }
+        if (corregidos > 0) {
+            log.info("Se corrigieron {} nombres de demostracion sin tilde", corregidos);
+        }
+    }
+
+    private long renombrar(String coleccion, String campo, String viejo, String nuevo) {
+        return mongo.updateMulti(Query.query(Criteria.where(campo).is(viejo)),
+                Update.update(campo, nuevo), coleccion).getModifiedCount();
+    }
+
+    /**
      * Tres mecanicos, no uno.
      *
      * <p>Con un solo mecanico la demostracion se agota: al asignarlo queda
      * ocupado, y si la orden se bloquea esperando repuesto no se libera.
      */
     private void cargarPersonal() {
-        mecanicos.guardar(Mecanico.nuevo("Mecanico de Prueba Uno", "20000001", "MEC-01", "frenos"));
-        mecanicos.guardar(Mecanico.nuevo("Mecanico de Prueba Dos", "20000002", "MEC-02", "motor"));
-        mecanicos.guardar(Mecanico.nuevo("Mecanico de Prueba Tres", "20000003", "MEC-03", "electricidad"));
+        mecanicos.guardar(Mecanico.nuevo("Mecánico de Prueba Uno", "20000001", "MEC-01", "frenos"));
+        mecanicos.guardar(Mecanico.nuevo("Mecánico de Prueba Dos", "20000002", "MEC-02", "motor"));
+        mecanicos.guardar(Mecanico.nuevo("Mecánico de Prueba Tres", "20000003", "MEC-03", "electricidad"));
     }
 }
