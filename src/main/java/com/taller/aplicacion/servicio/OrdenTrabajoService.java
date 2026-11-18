@@ -2,6 +2,7 @@ package com.taller.aplicacion.servicio;
 
 import com.taller.dominio.evento.EventoDominio;
 import com.taller.dominio.excepcion.RecursoNoEncontradoException;
+import com.taller.dominio.excepcion.ReglaNegocioException;
 import com.taller.dominio.excepcion.StockInsuficienteException;
 import com.taller.dominio.modelo.*;
 import com.taller.dominio.puerto.*;
@@ -47,6 +48,11 @@ public class OrdenTrabajoService {
 
     @Transactional
     public OrdenTrabajo crear(String placa, int kilometraje, String idCita, String usuario) {
+        return crear(placa, kilometraje, idCita, null, usuario);
+    }
+
+    @Transactional
+    public OrdenTrabajo crear(String placa, int kilometraje, String idCita, String motivo, String usuario) {
         Vehiculo vehiculo = vehiculos.buscarPorPlaca(placa)
                 .orElseThrow(() -> new RecursoNoEncontradoException("vehículo con placa", placa));
         Cliente cliente = clientes.buscarPorId(vehiculo.getIdCliente())
@@ -59,7 +65,7 @@ public class OrdenTrabajoService {
                 new ReferenciaCliente(cliente.getId(), cliente.getNombre(), cliente.getTelefono()),
                 new ReferenciaVehiculo(vehiculo.getId(), vehiculo.getPlaca(), vehiculo.getTipo(),
                         vehiculo.descripcionCorta()),
-                kilometraje, idCita, usuario);
+                kilometraje, idCita, motivo, usuario);
         orden.asignarNumero(consecutivos.siguienteOrdenTrabajo());
         return persistirYPublicar(orden);
     }
@@ -104,12 +110,54 @@ public class OrdenTrabajoService {
     @Transactional
     public OrdenTrabajo asignarMecanico(String idOrden, String idMecanico, String usuario) {
         OrdenTrabajo orden = obtener(idOrden);
-        Mecanico mecanico = mecanicos.buscarPorId(idMecanico)
-                .orElseThrow(() -> new RecursoNoEncontradoException("mecanico", idMecanico));
+        if (idMecanico == null || idMecanico.isBlank()) {
+            // Comienza con el mecanico que ya tenia asignado desde antes.
+            orden.asignarMecanico(null, usuario);
+            return persistirYPublicar(orden);
+        }
+        String anterior = orden.getMecanico() == null ? null : orden.getMecanico().id();
+        Mecanico mecanico = mecanicoParaAsignar(idMecanico, anterior);
         orden.asignarMecanico(new ReferenciaMecanico(mecanico.getId(), mecanico.getNombre()), usuario);
-        mecanico.ocupar();
-        mecanicos.guardar(mecanico);
+        ocuparYLiberar(mecanico, anterior);
         return persistirYPublicar(orden);
+    }
+
+    /**
+     * Asigna o cambia el mecanico de una orden en trabajo sin mover su
+     * estado. El anterior queda libre y el nuevo ocupado.
+     */
+    @Transactional
+    public OrdenTrabajo cambiarMecanico(String idOrden, String idMecanico) {
+        OrdenTrabajo orden = obtener(idOrden);
+        String anterior = orden.getMecanico() == null ? null : orden.getMecanico().id();
+        if (idMecanico.equals(anterior)) {
+            return orden;
+        }
+        Mecanico mecanico = mecanicoParaAsignar(idMecanico, anterior);
+        orden.cambiarMecanico(new ReferenciaMecanico(mecanico.getId(), mecanico.getNombre()));
+        ocuparYLiberar(mecanico, anterior);
+        return persistirYPublicar(orden);
+    }
+
+    private Mecanico mecanicoParaAsignar(String idMecanico, String idActual) {
+        Mecanico mecanico = mecanicos.buscarPorId(idMecanico)
+                .orElseThrow(() -> new RecursoNoEncontradoException("mecánico", idMecanico));
+        if (!mecanico.isDisponible() && !mecanico.getId().equals(idActual)) {
+            throw new ReglaNegocioException("MECANICO_OCUPADO",
+                    "%s está ocupado con otra orden; elija un mecánico disponible".formatted(mecanico.getNombre()));
+        }
+        return mecanico;
+    }
+
+    private void ocuparYLiberar(Mecanico nuevo, String idAnterior) {
+        if (idAnterior != null && !idAnterior.equals(nuevo.getId())) {
+            mecanicos.buscarPorId(idAnterior).ifPresent(previo -> {
+                previo.liberar();
+                mecanicos.guardar(previo);
+            });
+        }
+        nuevo.ocupar();
+        mecanicos.guardar(nuevo);
     }
 
     /**

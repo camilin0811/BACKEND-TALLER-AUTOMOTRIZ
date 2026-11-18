@@ -52,6 +52,8 @@ public class OrdenTrabajo {
     private BigDecimal total;
     private String idFactura;
     private Long version;
+    /** Lo que el cliente reporta al dejar el vehiculo: motivo o sintomas. */
+    private String motivoIngreso;
 
     private final transient List<EventoDominio> eventos = new ArrayList<>();
 
@@ -75,6 +77,14 @@ public class OrdenTrabajo {
     }
 
     /** Crea una orden recien recibida y registra el evento correspondiente. */
+    public static OrdenTrabajo recibir(ReferenciaCliente cliente, ReferenciaVehiculo vehiculo,
+                                       int kilometrajeIngreso, String idCita, String motivoIngreso,
+                                       String usuario) {
+        OrdenTrabajo orden = recibir(cliente, vehiculo, kilometrajeIngreso, idCita, usuario);
+        orden.motivoIngreso = motivoIngreso == null || motivoIngreso.isBlank() ? null : motivoIngreso.trim();
+        return orden;
+    }
+
     public static OrdenTrabajo recibir(ReferenciaCliente cliente, ReferenciaVehiculo vehiculo,
                                        int kilometrajeIngreso, String idCita, String usuario) {
         OrdenTrabajo orden = new OrdenTrabajo(null, null, EstadoOrden.RECIBIDA, Instant.now(), null,
@@ -135,13 +145,40 @@ public class OrdenTrabajo {
         eventos.add(new CotizacionRechazada(id, motivo));
     }
 
+    /**
+     * Comienza la reparacion de una orden aprobada.
+     *
+     * <p>Si no llega mecanico se usa el que ya tenga asignado (se puede
+     * asignar desde el diagnostico); sin ninguno, no se puede empezar.
+     */
     public void asignarMecanico(ReferenciaMecanico nuevoMecanico, String usuario) {
         if (estado != EstadoOrden.APROBADA) {
             throw new ReglaNegocioException("ORDEN_NO_APROBADA",
                     "La orden debe estar aprobada para asignar mecánico, y está en «%s»".formatted(estado.etiqueta()));
         }
-        this.mecanico = nuevoMecanico;
+        ReferenciaMecanico elegido = nuevoMecanico != null ? nuevoMecanico : this.mecanico;
+        if (elegido == null) {
+            throw new ReglaNegocioException("SIN_MECANICO",
+                    "Asigne un mecánico antes de comenzar la reparación");
+        }
+        this.mecanico = elegido;
         cambiarEstado(EstadoOrden.EN_REPARACION, usuario);
+    }
+
+    /**
+     * Asigna o cambia el mecanico sin mover el estado. Se permite mientras
+     * la orden esta en trabajo; cerrada, ya no hay a quien reasignarla.
+     *
+     * @return el mecanico anterior, para liberarlo; vacio si no habia
+     */
+    public java.util.Optional<ReferenciaMecanico> cambiarMecanico(ReferenciaMecanico nuevo) {
+        if (!estado.enTrabajo()) {
+            throw new ReglaNegocioException("MECANICO_NO_REASIGNABLE",
+                    "Solo se asigna mecánico a una orden en trabajo, y esta está en «%s»".formatted(estado.etiqueta()));
+        }
+        ReferenciaMecanico anterior = this.mecanico;
+        this.mecanico = nuevo;
+        return java.util.Optional.ofNullable(anterior);
     }
 
     public void registrarRepuesto(LineaRepuesto linea) {
@@ -251,6 +288,15 @@ public class OrdenTrabajo {
 
     public Instant getFechaIngreso() {
         return fechaIngreso;
+    }
+
+    public String getMotivoIngreso() {
+        return motivoIngreso;
+    }
+
+    /** Solo para rehidratar desde la base de datos. */
+    public void restaurarMotivoIngreso(String motivoIngreso) {
+        this.motivoIngreso = motivoIngreso;
     }
 
     public Instant getFechaEntrega() {

@@ -38,6 +38,18 @@ public final class MapeadorApi {
     }
 
     public static OrdenDetalleDTO aDetalle(OrdenTrabajo o) {
+        return aDetalle(o, false);
+    }
+
+    /**
+     * Version para el portal publico: sin el usuario interno de cada cambio
+     * ni el identificador del mecanico.
+     */
+    public static OrdenDetalleDTO aDetallePublico(OrdenTrabajo o) {
+        return aDetalle(o, true);
+    }
+
+    private static OrdenDetalleDTO aDetalle(OrdenTrabajo o, boolean publico) {
         List<String> codigos = new ArrayList<>();
         o.getDiagnosticos().forEach(d -> codigos.addAll(d.codigosFalla()));
 
@@ -48,7 +60,8 @@ public final class MapeadorApi {
                 .map(r -> new OrdenDetalleDTO.ItemDTO(r.codigo(), r.nombre(), r.cantidad(), r.subtotal()))
                 .toList();
         List<OrdenDetalleDTO.HitoDTO> historial = o.getHistorialEstados().stream()
-                .map(h -> new OrdenDetalleDTO.HitoDTO(h.estado().name(), h.fecha(), h.usuario()))
+                .map(h -> new OrdenDetalleDTO.HitoDTO(h.estado().name(), h.fecha(),
+                        publico ? null : h.usuario(), null, null))
                 .toList();
 
         return new OrdenDetalleDTO(o.getId(), o.getNumero(), o.getEstado().name(),
@@ -60,6 +73,8 @@ public final class MapeadorApi {
                 codigos,
                 o.getCotizacion() == null ? null : o.getCotizacion().getNumero(),
                 o.getCotizacion() == null ? null : o.getCotizacion().getEstado().name(),
-                servicios, repuestos, historial, o.getTotal(), o.getIdFactura());
+                servicios, repuestos, historial, o.getTotal(), o.getIdFactura(),
+                publico || o.getMecanico() == null ? null : o.getMecanico().id(),
+                o.getMotivoIngreso());
     }
 }

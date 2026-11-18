@@ -10,10 +10,41 @@ import java.util.List;
 @Service
 public class PersonalService {
 
-    private final MecanicoRepositorio mecanicos;
+    /**
+     * Un mecanico que se puede elegir en una orden: el usuario con rol
+     * mecanico y su ficha de empleado, que es lo que la orden guarda.
+     */
+    public record MecanicoAsignable(String idMecanico, String nombre, String usuario,
+                                    String especialidad, boolean disponible) {
+    }
 
-    public PersonalService(MecanicoRepositorio mecanicos) {
+
+    private final MecanicoRepositorio mecanicos;
+    private final com.taller.dominio.puerto.UsuarioRepositorio usuarios;
+
+    public PersonalService(MecanicoRepositorio mecanicos,
+                           com.taller.dominio.puerto.UsuarioRepositorio usuarios) {
         this.mecanicos = mecanicos;
+        this.usuarios = usuarios;
+    }
+
+    /**
+     * Los usuarios activos con rol mecanico que tienen ficha de empleado. Un
+     * usuario sin ficha no aparece: la orden no tendria a quien referenciar.
+     */
+    public List<MecanicoAsignable> asignables() {
+        var fichas = mecanicos.listar().stream()
+                .collect(java.util.stream.Collectors.toMap(Mecanico::getId, m -> m));
+        return usuarios.listar().stream()
+                .filter(u -> u.getRol() == com.taller.dominio.modelo.Rol.MECANICO && u.isActivo())
+                .filter(u -> u.getIdPersona() != null && fichas.containsKey(u.getIdPersona()))
+                .map(u -> {
+                    Mecanico m = fichas.get(u.getIdPersona());
+                    return new MecanicoAsignable(m.getId(), m.getNombre(), u.getUsuario(),
+                            m.getEspecialidad(), m.isDisponible());
+                })
+                .sorted(java.util.Comparator.comparing(MecanicoAsignable::nombre))
+                .toList();
     }
 
     public List<Mecanico> disponibles() {

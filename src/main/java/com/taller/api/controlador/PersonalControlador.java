@@ -22,6 +22,12 @@ public class PersonalControlador {
         this.personal = personal;
     }
 
+    @GetMapping
+    @Operation(summary = "Usuarios con rol mecánico que se pueden asignar, con su disponibilidad")
+    public List<PersonalService.MecanicoAsignable> asignables() {
+        return personal.asignables();
+    }
+
     @GetMapping("/disponibles")
     @Operation(summary = "Mecanicos libres para asignar una orden aprobada")
     public List<Mecanico> disponibles() {

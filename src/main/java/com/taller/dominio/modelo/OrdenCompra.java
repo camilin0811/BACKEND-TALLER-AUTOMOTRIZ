@@ -15,6 +15,11 @@ public class OrdenCompra {
     private final Instant fecha;
     private EstadoOrdenCompra estado;
     private final List<ItemOrdenCompra> items = new ArrayList<>();
+    /**
+     * Quien la genero: un usuario, o null si la creo la reposicion
+     * automatica. Las ordenes anteriores a este campo son automaticas.
+     */
+    private String generadaPor;
 
     public OrdenCompra(String id, String numero, String idProveedor, Instant fecha,
                        EstadoOrdenCompra estado, List<ItemOrdenCompra> items) {
@@ -126,6 +131,14 @@ public class OrdenCompra {
 
     public EstadoOrdenCompra getEstado() {
         return estado;
+    }
+
+    public String getGeneradaPor() {
+        return generadaPor;
+    }
+
+    public void registrarAutor(String usuario) {
+        this.generadaPor = usuario;
     }
 
     public List<ItemOrdenCompra> getItems() {

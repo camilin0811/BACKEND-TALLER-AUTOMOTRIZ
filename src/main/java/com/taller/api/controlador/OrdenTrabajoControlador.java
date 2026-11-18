@@ -1,5 +1,8 @@
 package com.taller.api.controlador;
 
+import com.taller.api.dto.AsignarMecanicoDTO;
+import org.springframework.security.core.Authentication;
+
 import com.taller.api.dto.*;
 import com.taller.api.mapeador.MapeadorApi;
 import com.taller.aplicacion.servicio.DiagnosticoService;
@@ -31,11 +34,21 @@ public class OrdenTrabajoControlador {
 
     private final OrdenTrabajoService ordenes;
     private final DiagnosticoService diagnosticos;
+    private final com.taller.aplicacion.servicio.DirectorioUsuarios directorio;
 
-    public OrdenTrabajoControlador(OrdenTrabajoService ordenes, DiagnosticoService diagnosticos) {
+    public OrdenTrabajoControlador(OrdenTrabajoService ordenes, DiagnosticoService diagnosticos,
+                                   com.taller.aplicacion.servicio.DirectorioUsuarios directorio) {
         this.ordenes = ordenes;
         this.diagnosticos = diagnosticos;
+        this.directorio = directorio;
     }
+
+    /*
+     * Quien hace cada cambio sale del token ya verificado, nunca de una
+     * cabecera del cliente: antes se leia X-Usuario, que el cliente podia
+     * inventar y que el frontend no enviaba, asi que todo quedaba registrado
+     * como "recepcion" o "mecanico".
+     */
 
     @GetMapping
     @Operation(summary = "Tablero de ordenes, filtrable por estado o placa")
@@ -55,9 +68,9 @@ public class OrdenTrabajoControlador {
     @PostMapping
     @Operation(summary = "Crea una orden al recibir el vehículo")
     public ResponseEntity<OrdenDetalleDTO> crear(@Valid @RequestBody CrearOrdenDTO dto,
-                                                 @RequestHeader(value = "X-Usuario", defaultValue = "recepcion")
-                                                 String usuario) {
-        OrdenTrabajo orden = ordenes.crear(dto.placa(), dto.kilometraje(), dto.idCita(), usuario);
+                                                 Authentication autenticado) {
+        OrdenTrabajo orden = ordenes.crear(dto.placa().toUpperCase(), dto.kilometraje(), dto.idCita(),
+                dto.motivo(), autenticado.getName());
         return ResponseEntity.created(URI.create("/api/v1/ordenes/" + orden.getId()))
                 .body(MapeadorApi.aDetalle(orden));
     }
@@ -69,19 +82,32 @@ public class OrdenTrabajoControlador {
     }
 
     @GetMapping("/{id}/historial")
-    @Operation(summary = "Linea de tiempo de los estados")
+    @Operation(summary = "Cambios de estado con quién los hizo (nombre y rol) y cuándo")
     public List<OrdenDetalleDTO.HitoDTO> historial(@PathVariable String id) {
+        var autor = directorio.resolutor();
         return ordenes.historial(id).stream()
-                .map(h -> new OrdenDetalleDTO.HitoDTO(h.estado().name(), h.fecha(), h.usuario()))
+                .map(h -> {
+                    var quien = autor.apply(h.usuario());
+                    return new OrdenDetalleDTO.HitoDTO(h.estado().name(), h.fecha(), h.usuario(),
+                            quien.nombre(), quien.rol());
+                })
                 .toList();
+    }
+
+    /** Solo recepcion y administracion (ver ConfiguracionSeguridad). */
+    @PatchMapping("/{id}/mecanico")
+    @Operation(summary = "Asigna o cambia el mecánico de una orden en trabajo, sin mover su estado")
+    public OrdenDetalleDTO asignarMecanico(@PathVariable String id,
+                                           @Valid @RequestBody AsignarMecanicoDTO dto) {
+        return MapeadorApi.aDetalle(ordenes.cambiarMecanico(id, dto.idMecanico()));
     }
 
     @PatchMapping("/{id}/estado")
     @Operation(summary = "Transiciona la orden; un salto ilegal devuelve 409")
     public OrdenDetalleDTO cambiarEstado(@PathVariable String id,
                                          @Valid @RequestBody CambiarEstadoDTO dto,
-                                         @RequestHeader(value = "X-Usuario", defaultValue = "recepcion")
-                                         String usuario) {
+                                         Authentication autenticado) {
+        String usuario = autenticado.getName();
         EstadoOrden destino = EstadoOrden.valueOf(dto.estado());
         OrdenTrabajo orden = switch (destino) {
             case EN_DIAGNOSTICO -> ordenes.registrarDiagnostico(id,
@@ -106,7 +132,8 @@ public class OrdenTrabajoControlador {
     public ResponseEntity<OrdenDetalleDTO> registrarDiagnostico(
             @PathVariable String id,
             @RequestBody RegistrarDiagnosticoDTO dto,
-            @RequestHeader(value = "X-Usuario", defaultValue = "mecanico") String usuario) {
+            Authentication autenticado) {
+        String usuario = autenticado.getName();
         OrdenTrabajo orden = ordenes.obtener(id);
         Diagnostico diagnostico = null;
         if (dto.usarEscaner()) {
@@ -131,8 +158,9 @@ public class OrdenTrabajoControlador {
     public ResponseEntity<OrdenDetalleDTO> registrarRepuesto(
             @PathVariable String id,
             @Valid @RequestBody ConsumirRepuestoDTO dto,
-            @RequestHeader(value = "X-Usuario", defaultValue = "mecanico") String usuario) {
-        OrdenTrabajo orden = ordenes.registrarRepuesto(id, dto.codigo(), dto.cantidad(), usuario);
+            Authentication autenticado) {
+        OrdenTrabajo orden = ordenes.registrarRepuesto(id, dto.codigo(), dto.cantidad(),
+                autenticado.getName());
         return ResponseEntity.status(201).body(MapeadorApi.aDetalle(orden));
     }
 }

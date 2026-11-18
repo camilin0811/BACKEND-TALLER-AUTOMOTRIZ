@@ -17,6 +17,7 @@ public class OrdenCompraDoc {
     public String idProveedor;
     public Instant fecha;
     public String estado;
+    public String generadaPor;
     public List<ItemDoc> items = new ArrayList<>();
 
     public static class ItemDoc {

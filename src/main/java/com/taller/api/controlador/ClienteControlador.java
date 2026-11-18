@@ -41,6 +41,12 @@ public class ClienteControlador {
         return ResponseEntity.created(URI.create("/api/v1/clientes/" + creado.getId())).body(creado);
     }
 
+    @GetMapping("/documento/{documento}")
+    @Operation(summary = "Busca un cliente por su documento; 404 si no existe")
+    public Cliente buscarPorDocumento(@PathVariable String documento) {
+        return clientes.obtenerPorDocumento(documento.trim());
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Consulta un cliente")
     public Cliente obtener(@PathVariable String id) {

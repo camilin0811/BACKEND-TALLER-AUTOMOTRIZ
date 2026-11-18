@@ -29,6 +29,11 @@ public class MecanicoRepositorioMongo implements MecanicoRepositorio {
     }
 
     @Override
+    public List<Mecanico> listar() {
+        return repo.findByCargo("MECANICO").stream().map(Mapeadores::aMecanico).toList();
+    }
+
+    @Override
     public Mecanico guardar(Mecanico mecanico) {
         return Mapeadores.aMecanico(repo.save(Mapeadores.aDoc(mecanico)));
     }

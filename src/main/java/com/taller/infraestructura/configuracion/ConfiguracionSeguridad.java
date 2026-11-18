@@ -68,7 +68,8 @@ public class ConfiguracionSeguridad {
                     .requestMatchers(HttpMethod.POST, "/api/v1/ordenes/*/repuestos")
                         .hasAnyRole(MEC, ADM, REC)
 
-                    // --- ordenes
+                    // --- ordenes: asignar o cambiar mecanico es de recepcion
+                    .requestMatchers(HttpMethod.PATCH, "/api/v1/ordenes/*/mecanico").hasAnyRole(REC, ADM)
                     .requestMatchers("/api/v1/ordenes/**").hasAnyRole(REC, MEC, ADM)
 
                     // --- facturacion: el mecanico no factura

@@ -74,6 +74,14 @@ public enum EstadoOrden {
         return this != ENTREGADA;
     }
 
+    /** La orden se esta trabajando: de Recibida a En espera de repuesto. */
+    public boolean enTrabajo() {
+        return switch (this) {
+            case RECIBIDA, EN_DIAGNOSTICO, COTIZADA, APROBADA, EN_REPARACION, EN_ESPERA_REPUESTO -> true;
+            default -> false;
+        };
+    }
+
     public boolean esTerminal() {
         return TRANSICIONES.get(this).isEmpty();
     }

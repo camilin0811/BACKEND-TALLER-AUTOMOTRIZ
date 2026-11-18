@@ -40,6 +40,7 @@ public class OrdenTrabajoDoc {
 
     public BigDecimal total;
     public String idFactura;
+    public String motivoIngreso;
 
     /** Bloqueo optimista: dos usuarios sobre la misma orden no se pisan. */
     @Version

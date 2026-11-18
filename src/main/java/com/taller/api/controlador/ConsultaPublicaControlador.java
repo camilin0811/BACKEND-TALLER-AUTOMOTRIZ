@@ -81,7 +81,7 @@ public class ConsultaPublicaControlador {
                         o.getEstado().name(), o.getFechaIngreso(), o.getFechaEntrega(), o.getTotal()))
                 .toList();
 
-        return new ConsultaPublicaRespuestaDTO(MapeadorApi.aDetalle(principal), historial);
+        return new ConsultaPublicaRespuestaDTO(MapeadorApi.aDetallePublico(principal), historial);
     }
 
     private static RecursoNoEncontradoException sinResultado() {

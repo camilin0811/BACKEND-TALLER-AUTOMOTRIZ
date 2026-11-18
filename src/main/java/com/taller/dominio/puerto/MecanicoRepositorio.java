@@ -11,6 +11,7 @@ public interface MecanicoRepositorio {
     java.util.Optional<Mecanico> buscarPorId(String id);
 
     java.util.List<Mecanico> listarDisponibles();
+    java.util.List<Mecanico> listar();
 
     Mecanico guardar(Mecanico mecanico);
 }

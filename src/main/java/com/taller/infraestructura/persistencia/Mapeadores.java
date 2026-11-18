@@ -131,6 +131,7 @@ public final class Mapeadores {
             historial.add(new CambioEstado(EstadoOrden.valueOf(cd.estado), cd.fecha, cd.usuario));
         }
         orden.rehidratar(diags, aCotizacion(d.cotizacion), servicios, repuestos, historial);
+        orden.restaurarMotivoIngreso(d.motivoIngreso);
         return orden;
     }
 
@@ -149,6 +150,7 @@ public final class Mapeadores {
         d.total = o.getTotal();
         d.idFactura = o.getIdFactura();
         d.version = o.getVersion();
+        d.motivoIngreso = o.getMotivoIngreso();
 
         for (Diagnostico diag : o.getDiagnosticos()) {
             OrdenTrabajoDoc.DiagnosticoDoc dd = new OrdenTrabajoDoc.DiagnosticoDoc();
@@ -345,8 +347,10 @@ public final class Mapeadores {
         for (OrdenCompraDoc.ItemDoc i : d.items) {
             items.add(new ItemOrdenCompra(i.codigoRepuesto, i.cantidad, i.cantidadRecibida, i.precioUnitario));
         }
-        return new OrdenCompra(d.id, d.numero, d.idProveedor, d.fecha,
+        OrdenCompra compra = new OrdenCompra(d.id, d.numero, d.idProveedor, d.fecha,
                 d.estado == null ? null : EstadoOrdenCompra.valueOf(d.estado), items);
+        compra.registrarAutor(d.generadaPor);
+        return compra;
     }
 
     public static OrdenCompraDoc aDoc(OrdenCompra o) {
@@ -356,6 +360,7 @@ public final class Mapeadores {
         d.idProveedor = o.getIdProveedor();
         d.fecha = o.getFecha();
         d.estado = o.getEstado().name();
+        d.generadaPor = o.getGeneradaPor();
         for (ItemOrdenCompra i : o.getItems()) {
             OrdenCompraDoc.ItemDoc id = new OrdenCompraDoc.ItemDoc();
             id.codigoRepuesto = i.getCodigoRepuesto();

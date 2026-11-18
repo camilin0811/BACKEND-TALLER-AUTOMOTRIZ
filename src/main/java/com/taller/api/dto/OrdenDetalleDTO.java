@@ -21,11 +21,17 @@ public record OrdenDetalleDTO(String id,
                               List<ItemDTO> repuestos,
                               List<HitoDTO> historial,
                               BigDecimal total,
-                              String idFactura) {
+                              String idFactura,
+                              String idMecanico,
+                              String motivoIngreso) {
 
     public record ItemDTO(String codigo, String descripcion, int cantidad, BigDecimal valor) {
     }
 
-    public record HitoDTO(String estado, Instant fecha, String usuario) {
+    /**
+     * Un cambio de estado. {@code nombre} y {@code rol} los completa la API
+     * interna; la publica no expone quien del taller hizo cada cambio.
+     */
+    public record HitoDTO(String estado, Instant fecha, String usuario, String nombre, String rol) {
     }
 }
