@@ -104,7 +104,7 @@ public class OrdenTrabajo {
         if (estado.ordinal() > EstadoOrden.EN_REPARACION.ordinal()
                 && estado != EstadoOrden.EN_ESPERA_REPUESTO) {
             throw new ReglaNegocioException("ORDEN_NO_EDITABLE",
-                    "No se pueden agregar servicios a una orden en estado %s".formatted(estado));
+                    "No se pueden agregar servicios a una orden en estado «%s»".formatted(estado.etiqueta()));
         }
         servicios.add(servicio);
         recalcularTotal();
@@ -113,7 +113,7 @@ public class OrdenTrabajo {
     public void emitirCotizacion(String numeroCotizacion, int vigenciaHoras, String usuario) {
         if (servicios.isEmpty() && repuestos.isEmpty()) {
             throw new ReglaNegocioException("COTIZACION_VACIA",
-                    "La cotizacion debe incluir al menos un servicio");
+                    "La cotización debe incluir al menos un servicio");
         }
         recalcularTotal();
         this.cotizacion = Cotizacion.emitir(numeroCotizacion, total, vigenciaHoras);
@@ -138,7 +138,7 @@ public class OrdenTrabajo {
     public void asignarMecanico(ReferenciaMecanico nuevoMecanico, String usuario) {
         if (estado != EstadoOrden.APROBADA) {
             throw new ReglaNegocioException("ORDEN_NO_APROBADA",
-                    "La orden debe estar aprobada para asignar mecanico, y esta en %s".formatted(estado));
+                    "La orden debe estar aprobada para asignar mecánico, y está en «%s»".formatted(estado.etiqueta()));
         }
         this.mecanico = nuevoMecanico;
         cambiarEstado(EstadoOrden.EN_REPARACION, usuario);
@@ -147,7 +147,7 @@ public class OrdenTrabajo {
     public void registrarRepuesto(LineaRepuesto linea) {
         if (!estado.permiteConsumoDeRepuestos()) {
             throw new ReglaNegocioException("CONSUMO_NO_PERMITIDO",
-                    "Solo se registran repuestos con la orden en EN_REPARACION, y esta en %s".formatted(estado));
+                    "Solo se registran repuestos con la orden en reparación, y está en «%s»".formatted(estado.etiqueta()));
         }
         repuestos.add(linea);
         recalcularTotal();
@@ -171,7 +171,7 @@ public class OrdenTrabajo {
     public void marcarFacturada(String idFacturaEmitida, String usuario) {
         if (cotizacion == null || !cotizacion.estaAprobada()) {
             throw new ReglaNegocioException("SIN_COTIZACION_APROBADA",
-                    "No se puede facturar una orden sin cotizacion aprobada");
+                    "No se puede facturar una orden sin cotización aprobada");
         }
         cambiarEstado(EstadoOrden.FACTURADA, usuario);
         this.idFactura = idFacturaEmitida;
@@ -200,7 +200,7 @@ public class OrdenTrabajo {
 
     private void exigirCotizacion() {
         if (cotizacion == null) {
-            throw new ReglaNegocioException("SIN_COTIZACION", "La orden no tiene cotizacion emitida");
+            throw new ReglaNegocioException("SIN_COTIZACION", "La orden no tiene cotización emitida");
         }
     }
 

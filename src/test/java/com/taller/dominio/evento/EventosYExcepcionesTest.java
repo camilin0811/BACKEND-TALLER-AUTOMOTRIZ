@@ -169,10 +169,12 @@ class EventosYExcepcionesTest {
                     new TransicionInvalidaException(EstadoOrden.COTIZADA, EstadoOrden.CERRADA);
 
             assertThat(e.getMessage())
-                    .contains("COTIZADA")
-                    .contains("CERRADA")
-                    .contains("APROBADA")
-                    .contains("RECHAZADA");
+                    .contains("Cotizada")
+                    .contains("Cerrada")
+                    .contains("Aprobada")
+                    .contains("Rechazada")
+                    // El mensaje llega a la pantalla: nunca el nombre crudo del enum.
+                    .doesNotContain("COTIZADA");
         }
 
         @Test

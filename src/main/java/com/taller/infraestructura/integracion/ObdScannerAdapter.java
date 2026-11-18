@@ -35,7 +35,7 @@ public class ObdScannerAdapter implements EscanerDiagnostico {
                     .retrieve()
                     .body(Map.class);
             if (respuesta == null) {
-                throw new IntegracionNoDisponibleException("escaner OBD-II", "respuesta vacia");
+                throw new IntegracionNoDisponibleException("escáner OBD-II", "respuesta vacía");
             }
             List<String> codigos = (List<String>) respuesta.getOrDefault("codigosFalla", List.of());
             Map<String, Object> lecturas = (Map<String, Object>) respuesta.getOrDefault("lecturas", Map.of());
@@ -44,7 +44,7 @@ public class ObdScannerAdapter implements EscanerDiagnostico {
         } catch (IntegracionNoDisponibleException e) {
             throw e;
         } catch (RuntimeException e) {
-            throw new IntegracionNoDisponibleException("escaner OBD-II", e.getMessage());
+            throw new IntegracionNoDisponibleException("escáner OBD-II", e.getMessage());
         }
     }
 }

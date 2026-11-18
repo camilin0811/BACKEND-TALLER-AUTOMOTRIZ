@@ -48,11 +48,11 @@ public class ManejadorNotificaciones extends ManejadorEventos {
                 }
             }
             case CotizacionAprobada e -> telefonoDeLaOrden(e.getIdOrden()).ifPresent(tel ->
-                    notificador.enviarMensaje(tel, "Cotizacion aprobada. Su vehiculo entro a reparacion."));
+                    notificador.enviarMensaje(tel, "Cotización aprobada. Su vehículo entró a reparación."));
             case OrdenCerrada e -> clientes.buscarPorId(e.getIdCliente()).ifPresent(cliente -> {
                 if (cliente.getTelefono() != null) {
                     notificador.enviarMensaje(cliente.getTelefono(),
-                            "Su vehiculo esta listo para recoger. Total: %s".formatted(e.getTotal()));
+                            "Su vehículo está listo para recoger. Total: %s".formatted(e.getTotal()));
                 }
             });
             case FacturaValidada e -> log.info("Factura {} validada con CUFE {}", e.getIdFactura(), e.getCufe());

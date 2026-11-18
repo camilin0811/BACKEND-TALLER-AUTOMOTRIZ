@@ -50,7 +50,7 @@ public class OrdenTrabajoService {
     @Transactional
     public OrdenTrabajo crear(String placa, int kilometraje, String idCita, String usuario) {
         Vehiculo vehiculo = vehiculos.buscarPorPlaca(placa)
-                .orElseThrow(() -> new RecursoNoEncontradoException("vehiculo con placa", placa));
+                .orElseThrow(() -> new RecursoNoEncontradoException("vehículo con placa", placa));
         Cliente cliente = clientes.buscarPorId(vehiculo.getIdCliente())
                 .orElseThrow(() -> new RecursoNoEncontradoException("cliente", vehiculo.getIdCliente()));
 

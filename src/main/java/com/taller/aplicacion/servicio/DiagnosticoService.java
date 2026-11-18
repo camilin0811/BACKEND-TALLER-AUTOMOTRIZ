@@ -40,7 +40,7 @@ public class DiagnosticoService {
 
     public String interpretar(List<String> codigosFalla) {
         if (codigosFalla == null || codigosFalla.isEmpty()) {
-            return "Sin codigos de falla almacenados";
+            return "Sin códigos de falla almacenados";
         }
         StringBuilder resumen = new StringBuilder();
         for (String codigo : codigosFalla) {
@@ -52,7 +52,7 @@ public class DiagnosticoService {
     /** La primera letra del codigo OBD-II indica el sistema afectado. */
     private String sistemaDe(String codigo) {
         if (codigo == null || codigo.isBlank()) {
-            return "codigo desconocido";
+            return "código desconocido";
         }
         return switch (Character.toUpperCase(codigo.charAt(0))) {
             case 'P' -> "motor y transmision";

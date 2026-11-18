@@ -17,16 +17,30 @@ import java.util.Set;
  */
 public enum EstadoOrden {
 
-    RECIBIDA,
-    EN_DIAGNOSTICO,
-    COTIZADA,
-    APROBADA,
-    RECHAZADA,
-    EN_REPARACION,
-    EN_ESPERA_REPUESTO,
-    CERRADA,
-    FACTURADA,
-    ENTREGADA;
+    RECIBIDA("Recibida"),
+    EN_DIAGNOSTICO("En diagnóstico"),
+    COTIZADA("Cotizada"),
+    APROBADA("Aprobada"),
+    RECHAZADA("Rechazada"),
+    EN_REPARACION("En reparación"),
+    EN_ESPERA_REPUESTO("En espera de repuesto"),
+    CERRADA("Cerrada"),
+    FACTURADA("Facturada"),
+    ENTREGADA("Entregada");
+
+    private final String etiqueta;
+
+    EstadoOrden(String etiqueta) {
+        this.etiqueta = etiqueta;
+    }
+
+    /**
+     * Nombre para personas. Los mensajes de error lo usan en lugar del nombre
+     * del enum, que es un identificador tecnico y llega tal cual a la pantalla.
+     */
+    public String etiqueta() {
+        return etiqueta;
+    }
 
     private static final Map<EstadoOrden, Set<EstadoOrden>> TRANSICIONES = new EnumMap<>(EstadoOrden.class);
 

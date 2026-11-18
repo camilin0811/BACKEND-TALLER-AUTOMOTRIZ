@@ -53,7 +53,7 @@ public class OrdenTrabajoControlador {
     }
 
     @PostMapping
-    @Operation(summary = "Crea una orden al recibir el vehiculo")
+    @Operation(summary = "Crea una orden al recibir el vehículo")
     public ResponseEntity<OrdenDetalleDTO> crear(@Valid @RequestBody CrearOrdenDTO dto,
                                                  @RequestHeader(value = "X-Usuario", defaultValue = "recepcion")
                                                  String usuario) {
@@ -85,7 +85,7 @@ public class OrdenTrabajoControlador {
         EstadoOrden destino = EstadoOrden.valueOf(dto.estado());
         OrdenTrabajo orden = switch (destino) {
             case EN_DIAGNOSTICO -> ordenes.registrarDiagnostico(id,
-                    diagnosticos.registroManual(List.of(), "Inicio de diagnostico"), usuario);
+                    diagnosticos.registroManual(List.of(), "Inicio de diagnóstico"), usuario);
             case COTIZADA -> ordenes.emitirCotizacion(id, 48, usuario);
             case APROBADA -> ordenes.aprobarCotizacion(id,
                     dto.canal() == null ? CanalAprobacion.PRESENCIAL : CanalAprobacion.valueOf(dto.canal()),
@@ -102,7 +102,7 @@ public class OrdenTrabajoControlador {
     }
 
     @PostMapping("/{id}/diagnosticos")
-    @Operation(summary = "Registra un diagnostico, desde el escaner o manual")
+    @Operation(summary = "Registra un diagnóstico, desde el escáner o manual")
     public ResponseEntity<OrdenDetalleDTO> registrarDiagnostico(
             @PathVariable String id,
             @RequestBody RegistrarDiagnosticoDTO dto,

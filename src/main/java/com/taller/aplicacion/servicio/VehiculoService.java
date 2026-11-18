@@ -21,7 +21,7 @@ public class VehiculoService {
 
     public Vehiculo registrar(Vehiculo vehiculo) {
         if (vehiculos.existePlaca(vehiculo.getPlaca())) {
-            throw new RecursoDuplicadoException("La placa %s ya esta registrada".formatted(vehiculo.getPlaca()));
+            throw new RecursoDuplicadoException("La placa %s ya está registrada".formatted(vehiculo.getPlaca()));
         }
         clientes.obtener(vehiculo.getIdCliente());
         return vehiculos.guardar(vehiculo);
@@ -29,7 +29,7 @@ public class VehiculoService {
 
     public Vehiculo obtenerPorPlaca(String placa) {
         return vehiculos.buscarPorPlaca(placa)
-                .orElseThrow(() -> new RecursoNoEncontradoException("vehiculo con placa", placa));
+                .orElseThrow(() -> new RecursoNoEncontradoException("vehículo con placa", placa));
     }
 
     public List<Vehiculo> listarPorCliente(String idCliente) {

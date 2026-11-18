@@ -102,7 +102,7 @@ class OrdenTrabajoTest {
 
             assertThatThrownBy(() -> orden.marcarFacturada("fac-1", "recepcion01"))
                     .isInstanceOf(ReglaNegocioException.class)
-                    .hasMessageContaining("cotizacion aprobada");
+                    .hasMessageContaining("cotización aprobada");
         }
 
         @Test
@@ -112,9 +112,9 @@ class OrdenTrabajoTest {
 
             assertThatThrownBy(() -> orden.cerrar("mecanico03"))
                     .isInstanceOf(TransicionInvalidaException.class)
-                    .hasMessageContaining("RECIBIDA")
-                    .hasMessageContaining("CERRADA")
-                    .hasMessageContaining("EN_DIAGNOSTICO");
+                    .hasMessageContaining("Recibida")
+                    .hasMessageContaining("Cerrada")
+                    .hasMessageContaining("En diagnóstico");
         }
 
         @Test
@@ -195,7 +195,7 @@ class OrdenTrabajoTest {
 
             assertThatThrownBy(() -> orden.registrarRepuesto(OrdenTrabajoMother.pastillas()))
                     .isInstanceOf(ReglaNegocioException.class)
-                    .hasMessageContaining("EN_REPARACION");
+                    .hasMessageContaining("reparación");
         }
 
         @Test

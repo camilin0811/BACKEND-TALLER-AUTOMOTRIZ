@@ -57,7 +57,7 @@ public abstract class Vehiculo {
     public void actualizarKilometraje(int nuevoKilometraje) {
         if (nuevoKilometraje < this.kilometraje) {
             throw new ReglaNegocioException("KILOMETRAJE_INVALIDO",
-                    "El kilometraje no puede ser menor al ultimo registrado (%d)".formatted(this.kilometraje));
+                    "El kilometraje no puede ser menor al último registrado (%d)".formatted(this.kilometraje));
         }
         this.kilometraje = nuevoKilometraje;
     }

@@ -29,7 +29,7 @@ public class PersonalControlador {
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Consulta un mecanico")
+    @Operation(summary = "Consulta un mecánico")
     public Mecanico obtener(@PathVariable String id) {
         return personal.obtener(id);
     }

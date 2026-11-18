@@ -18,7 +18,7 @@ import java.util.Map;
  * 401 y 403 con la misma forma que el resto de errores de la API.
  *
  * <p>Sin esto, Spring Security devuelve una pagina HTML o un cuerpo vacio y el
- * frontend no puede distinguir "no inicio sesion" de "no tiene permiso".
+ * frontend no puede distinguir "no inicio sesión" de "no tiene permiso".
  */
 @Component
 public class RespuestasDeSeguridad implements AuthenticationEntryPoint, AccessDeniedHandler {
@@ -29,14 +29,14 @@ public class RespuestasDeSeguridad implements AuthenticationEntryPoint, AccessDe
     public void commence(HttpServletRequest peticion, HttpServletResponse respuesta,
                          AuthenticationException excepcion) throws IOException {
         escribir(peticion, respuesta, 401, "NO_AUTENTICADO",
-                "Debe iniciar sesion para usar este recurso");
+                "Debe iniciar sesión para usar este recurso");
     }
 
     @Override
     public void handle(HttpServletRequest peticion, HttpServletResponse respuesta,
                        AccessDeniedException excepcion) throws IOException {
         escribir(peticion, respuesta, 403, "SIN_PERMISO",
-                "Su rol no tiene permiso para esta operacion");
+                "Su rol no tiene permiso para esta operación");
     }
 
     private void escribir(HttpServletRequest peticion, HttpServletResponse respuesta,

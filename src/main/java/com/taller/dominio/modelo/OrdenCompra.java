@@ -43,10 +43,11 @@ public class OrdenCompra {
     public void enviar() {
         if (estado != EstadoOrdenCompra.BORRADOR) {
             throw new ReglaNegocioException("ORDEN_COMPRA_NO_ENVIABLE",
-                    "Solo se envia una orden de compra en BORRADOR, y esta en %s".formatted(estado));
+                    "Solo se envía una orden de compra en borrador, y está en %s".formatted(
+                            estado.name().toLowerCase().replace('_', ' ')));
         }
         if (items.isEmpty()) {
-            throw new ReglaNegocioException("ORDEN_COMPRA_VACIA", "La orden de compra no tiene items");
+            throw new ReglaNegocioException("ORDEN_COMPRA_VACIA", "La orden de compra no tiene ítems");
         }
         this.estado = EstadoOrdenCompra.ENVIADA;
     }

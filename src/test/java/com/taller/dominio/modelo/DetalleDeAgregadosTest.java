@@ -110,7 +110,7 @@ class DetalleDeAgregadosTest {
 
             assertThatThrownBy(oc::enviar)
                     .isInstanceOf(ReglaNegocioException.class)
-                    .hasMessageContaining("BORRADOR");
+                    .hasMessageContaining("borrador");
         }
 
         @Test
@@ -121,7 +121,7 @@ class DetalleDeAgregadosTest {
 
             assertThatThrownBy(vacia::enviar)
                     .isInstanceOf(ReglaNegocioException.class)
-                    .hasMessageContaining("items");
+                    .hasMessageContaining("ítems");
         }
 
         @Test
@@ -323,7 +323,7 @@ class DetalleDeAgregadosTest {
 
             assertThatThrownBy(() -> sinCot.aprobarCotizacion(CanalAprobacion.WHATSAPP, "u"))
                     .isInstanceOf(ReglaNegocioException.class)
-                    .hasMessageContaining("cotizacion");
+                    .hasMessageContaining("cotización");
 
             assertThatThrownBy(() -> sinCot.rechazarCotizacion("motivo", "u"))
                     .isInstanceOf(ReglaNegocioException.class);
@@ -336,7 +336,7 @@ class DetalleDeAgregadosTest {
 
             assertThatThrownBy(() -> cerrada.agregarServicio(OrdenTrabajoMother.servicioFrenos()))
                     .isInstanceOf(ReglaNegocioException.class)
-                    .hasMessageContaining("CERRADA");
+                    .hasMessageContaining("Cerrada");
         }
 
         @Test

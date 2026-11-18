@@ -25,7 +25,7 @@ public class AutenticacionControlador {
     }
 
     @PostMapping("/login")
-    @Operation(summary = "Inicia sesion y devuelve el token")
+    @Operation(summary = "Inicia sesión y devuelve el token")
     public TokenDTO entrar(@Valid @RequestBody LoginDTO dto) {
         AutenticacionService.Sesion sesion = autenticacion.autenticar(dto.usuario(), dto.clave());
         return new TokenDTO(sesion.token(), sesion.tipo(), sesion.expiraEnSegundos(),

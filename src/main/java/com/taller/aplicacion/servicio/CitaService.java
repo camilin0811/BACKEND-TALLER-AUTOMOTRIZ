@@ -35,7 +35,7 @@ public class CitaService {
     public Cita agendar(String idCliente, String placa, LocalDateTime fechaHora, String motivo, String canal) {
         if (!hayDisponibilidad(fechaHora)) {
             throw new ReglaNegocioException("SIN_CUPO",
-                    "No hay cupo el %s. Horarios disponibles mas proximos: %s"
+                    "No hay cupo el %s. Horarios disponibles más próximos: %s"
                             .formatted(fechaHora, alternativas(fechaHora)));
         }
         Cita cita = Cita.solicitar(idCliente, placa, fechaHora, motivo, canal);

@@ -70,7 +70,7 @@ public class Factura {
 
     public void marcarValidada(String cufeRecibido) {
         if (cufeRecibido == null || cufeRecibido.isBlank()) {
-            throw new ReglaNegocioException("CUFE_VACIO", "La DIAN no devolvio CUFE");
+            throw new ReglaNegocioException("CUFE_VACIO", "La DIAN no devolvió CUFE");
         }
         this.cufe = cufeRecibido;
         this.estadoDian = EstadoDian.VALIDADA;

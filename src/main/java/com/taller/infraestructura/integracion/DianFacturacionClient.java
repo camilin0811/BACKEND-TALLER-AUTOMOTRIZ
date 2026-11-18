@@ -83,7 +83,7 @@ public class DianFacturacionClient implements FacturacionElectronica {
             return Resultado.validada(String.valueOf(cufe));
         }
         Object motivo = respuesta.get("motivo");
-        return Resultado.rechazada(motivo == null ? "La DIAN no valido la factura" : String.valueOf(motivo));
+        return Resultado.rechazada(motivo == null ? "La DIAN no validó la factura" : String.valueOf(motivo));
     }
 
     private void esperar(int intento) {

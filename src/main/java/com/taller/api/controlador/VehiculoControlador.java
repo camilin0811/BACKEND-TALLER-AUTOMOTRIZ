@@ -31,7 +31,7 @@ public class VehiculoControlador {
     }
 
     @GetMapping("/{placa}")
-    @Operation(summary = "Consulta un vehiculo por placa")
+    @Operation(summary = "Consulta un vehículo por placa")
     public Vehiculo obtener(@PathVariable String placa) {
         return vehiculos.obtenerPorPlaca(placa);
     }

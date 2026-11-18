@@ -8,6 +8,6 @@ public record CrearClienteDTO(
         @NotBlank(message = "El nombre es obligatorio") String nombre,
         @NotBlank(message = "El documento es obligatorio") @Size(max = 20) String documento,
         String telefono,
-        @Email(message = "El correo no tiene formato valido") String email,
+        @Email(message = "El correo no tiene formato válido") String email,
         String direccion) {
 }
