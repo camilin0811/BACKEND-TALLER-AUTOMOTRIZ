@@ -2,6 +2,7 @@ package com.taller.aplicacion.servicio;
 
 import com.taller.dominio.evento.StockBajoDetectado;
 import com.taller.dominio.excepcion.RecursoNoEncontradoException;
+import com.taller.dominio.puerto.GeneradorConsecutivos;
 import com.taller.dominio.modelo.MovimientoInventario;
 import com.taller.dominio.modelo.OrdenCompra;
 import com.taller.dominio.modelo.Repuesto;
@@ -21,15 +22,18 @@ public class InventarioService {
     private final MovimientoInventarioRepositorio movimientos;
     private final OrdenCompraRepositorio ordenesCompra;
     private final PublicadorEventos publicador;
+    private final GeneradorConsecutivos consecutivos;
 
     public InventarioService(RepuestoRepositorio repuestos,
                              MovimientoInventarioRepositorio movimientos,
                              OrdenCompraRepositorio ordenesCompra,
-                             PublicadorEventos publicador) {
+                             PublicadorEventos publicador,
+                             GeneradorConsecutivos consecutivos) {
         this.repuestos = repuestos;
         this.movimientos = movimientos;
         this.ordenesCompra = ordenesCompra;
         this.publicador = publicador;
+        this.consecutivos = consecutivos;
     }
 
     public Repuesto obtener(String codigo) {
@@ -79,13 +83,58 @@ public class InventarioService {
         return repuesto;
     }
 
+    /**
+     * Reposicion automatica: crea una orden de compra en borrador.
+     *
+     * <p>Es el unico lugar que la genera, tanto si el stock baja del minimo
+     * tras un consumo como si un consumo falla por falta de stock. Si ya hay
+     * una orden abierta (borrador, enviada o recibida en parte) para ese
+     * repuesto no crea otra: cada consumo bajo el minimo no debe sumar un
+     * pedido nuevo al mismo proveedor.
+     *
+     * @return la orden creada, o vacio si ya habia una abierta
+     */
+    @Transactional
+    public java.util.Optional<OrdenCompra> generarReposicion(String codigoRepuesto) {
+        Repuesto repuesto = obtener(codigoRepuesto);
+        boolean yaPedido = ordenesCompra.listar().stream()
+                .anyMatch(oc -> oc.estaAbierta() && oc.incluye(codigoRepuesto));
+        if (yaPedido) {
+            return java.util.Optional.empty();
+        }
+        OrdenCompra compra = OrdenCompra.borradorPorReposicion(repuesto.proveedorHabitual(),
+                repuesto.getCodigo(), repuesto.cantidadReposicion(), repuesto.getPrecio());
+        compra.asignarNumero(consecutivos.siguienteOrdenCompra());
+        return java.util.Optional.of(ordenesCompra.guardar(compra));
+    }
+
+    @Transactional
+    public OrdenCompra ajustarCantidad(String idOrdenCompra, String codigoRepuesto, int cantidad) {
+        OrdenCompra orden = obtenerOrdenCompra(idOrdenCompra);
+        orden.ajustarCantidad(codigoRepuesto, cantidad);
+        return ordenesCompra.guardar(orden);
+    }
+
+    @Transactional
+    public OrdenCompra enviar(String idOrdenCompra) {
+        OrdenCompra orden = obtenerOrdenCompra(idOrdenCompra);
+        orden.enviar();
+        return ordenesCompra.guardar(orden);
+    }
+
     @Transactional
     public OrdenCompra registrarRecepcion(String idOrdenCompra, String codigoRepuesto, int cantidad) {
-        OrdenCompra orden = ordenesCompra.buscarPorId(idOrdenCompra)
-                .orElseThrow(() -> new RecursoNoEncontradoException("orden de compra", idOrdenCompra));
+        OrdenCompra orden = obtenerOrdenCompra(idOrdenCompra);
+        // El dominio valida primero (estado, repuesto, pendiente): si rechaza,
+        // el stock no se toca.
         orden.registrarRecepcion(codigoRepuesto, cantidad);
-        reponer(codigoRepuesto, cantidad, "Recepcion de orden de compra %s".formatted(orden.getNumero()));
+        reponer(codigoRepuesto, cantidad, "Recepción de orden de compra %s".formatted(orden.getNumero()));
         return ordenesCompra.guardar(orden);
+    }
+
+    private OrdenCompra obtenerOrdenCompra(String id) {
+        return ordenesCompra.buscarPorId(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("orden de compra", id));
     }
 
     public List<OrdenCompra> listarOrdenesCompra() {

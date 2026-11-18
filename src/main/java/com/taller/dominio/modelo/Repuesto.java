@@ -64,6 +64,19 @@ public class Repuesto {
         this.stock = nuevoStock;
     }
 
+    /**
+     * Cuanto pedir al reponer: lo necesario para llegar al doble del minimo.
+     *
+     * <p>Es la unica regla de reposicion del sistema. Depende solo del stock
+     * y del minimo, nunca de una cantidad solicitada: un consumo rechazado o
+     * un error de digitacion no deben inflar la compra. Si la orden bloqueada
+     * necesita mas, quien revisa el borrador ajusta la cantidad antes de
+     * enviarlo. Ejemplo: minimo 6 y stock 3 piden (6 x 2) - 3 = 9.
+     */
+    public int cantidadReposicion() {
+        return Math.max(1, stockMinimo * 2 - stock);
+    }
+
     public boolean requiereReposicion() {
         return stock <= stockMinimo;
     }

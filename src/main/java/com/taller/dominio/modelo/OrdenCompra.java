@@ -52,16 +52,44 @@ public class OrdenCompra {
         this.estado = EstadoOrdenCompra.ENVIADA;
     }
 
+    /** Mientras es borrador, quien la revisa puede corregir la cantidad sugerida. */
+    public void ajustarCantidad(String codigoRepuesto, int cantidad) {
+        if (estado != EstadoOrdenCompra.BORRADOR) {
+            throw new ReglaNegocioException("ORDEN_COMPRA_NO_EDITABLE",
+                    "Solo se edita una orden de compra en borrador; esta ya fue enviada");
+        }
+        item(codigoRepuesto).cambiarCantidad(cantidad);
+    }
+
     public void registrarRecepcion(String codigoRepuesto, int cantidad) {
-        ItemOrdenCompra item = items.stream()
+        // Solo llega lo que se pidio: una orden en borrador nunca salio al
+        // proveedor y una ya recibida o anulada no espera nada.
+        if (estado != EstadoOrdenCompra.ENVIADA && estado != EstadoOrdenCompra.RECIBIDA_PARCIAL) {
+            throw new ReglaNegocioException("ORDEN_COMPRA_NO_RECIBIBLE",
+                    "Solo se registra la recepción de una orden de compra enviada");
+        }
+        item(codigoRepuesto).recibir(cantidad);
+        this.estado = items.stream().allMatch(ItemOrdenCompra::estaCompleto)
+                ? EstadoOrdenCompra.RECIBIDA
+                : EstadoOrdenCompra.RECIBIDA_PARCIAL;
+    }
+
+    /** True si la orden espera que se haga algo con ella (revisar o recibir). */
+    public boolean estaAbierta() {
+        return estado == EstadoOrdenCompra.BORRADOR || estado == EstadoOrdenCompra.ENVIADA
+                || estado == EstadoOrdenCompra.RECIBIDA_PARCIAL;
+    }
+
+    public boolean incluye(String codigoRepuesto) {
+        return items.stream().anyMatch(i -> i.getCodigoRepuesto().equals(codigoRepuesto));
+    }
+
+    private ItemOrdenCompra item(String codigoRepuesto) {
+        return items.stream()
                 .filter(i -> i.getCodigoRepuesto().equals(codigoRepuesto))
                 .findFirst()
                 .orElseThrow(() -> new ReglaNegocioException("ITEM_NO_EN_ORDEN",
                         "La orden de compra no incluye el repuesto %s".formatted(codigoRepuesto)));
-        item.recibir(cantidad);
-        this.estado = items.stream().allMatch(ItemOrdenCompra::estaCompleto)
-                ? EstadoOrdenCompra.RECIBIDA
-                : EstadoOrdenCompra.RECIBIDA_PARCIAL;
     }
 
     public BigDecimal total() {

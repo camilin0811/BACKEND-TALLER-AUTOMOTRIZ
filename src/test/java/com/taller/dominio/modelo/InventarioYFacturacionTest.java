@@ -146,6 +146,7 @@ class InventarioYFacturacionTest {
         @DisplayName("no se recibe un repuesto que no esta en la orden")
         void repuestoAjeno() {
             OrdenCompra oc = borrador();
+            oc.enviar();
 
             assertThatThrownBy(() -> oc.registrarRecepcion("FILT-009", 5))
                     .isInstanceOf(ReglaNegocioException.class)

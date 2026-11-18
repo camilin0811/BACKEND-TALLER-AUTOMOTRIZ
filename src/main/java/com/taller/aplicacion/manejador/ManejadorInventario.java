@@ -1,31 +1,29 @@
 package com.taller.aplicacion.manejador;
 
+import com.taller.aplicacion.servicio.InventarioService;
 import com.taller.dominio.evento.EventoDominio;
 import com.taller.dominio.evento.StockBajoDetectado;
-import com.taller.dominio.modelo.OrdenCompra;
-import com.taller.dominio.modelo.Repuesto;
-import com.taller.dominio.puerto.GeneradorConsecutivos;
-import com.taller.dominio.puerto.OrdenCompraRepositorio;
-import com.taller.dominio.puerto.RepuestoRepositorio;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-/** M3: mantiene el stock coherente y dispara la reposicion. */
+/**
+ * M3: dispara la reposicion cuando el stock baja del minimo.
+ *
+ * <p>No calcula nada: la regla de cuanto pedir vive en el dominio
+ * ({@code Repuesto.cantidadReposicion}) y la creacion de la orden en
+ * {@link InventarioService#generarReposicion}, el mismo camino que usa un
+ * consumo rechazado por falta de stock.
+ */
 @Component
 public class ManejadorInventario extends ManejadorEventos {
 
     private static final Logger log = LoggerFactory.getLogger(ManejadorInventario.class);
 
-    private final RepuestoRepositorio repuestos;
-    private final OrdenCompraRepositorio ordenesCompra;
-    private final GeneradorConsecutivos consecutivos;
+    private final InventarioService inventario;
 
-    public ManejadorInventario(RepuestoRepositorio repuestos, OrdenCompraRepositorio ordenesCompra,
-                               GeneradorConsecutivos consecutivos) {
-        this.repuestos = repuestos;
-        this.ordenesCompra = ordenesCompra;
-        this.consecutivos = consecutivos;
+    public ManejadorInventario(InventarioService inventario) {
+        this.inventario = inventario;
     }
 
     @Override
@@ -38,17 +36,10 @@ public class ManejadorInventario extends ManejadorEventos {
         if (!(evento instanceof StockBajoDetectado e)) {
             return;
         }
-        Repuesto repuesto = repuestos.buscarPorCodigo(e.getCodigoRepuesto()).orElse(null);
-        if (repuesto == null) {
-            log.warn("Stock bajo de un repuesto inexistente: {}", e.getCodigoRepuesto());
-            return;
-        }
-        int cantidad = Math.max(repuesto.getStockMinimo() * 2, 1);
-        OrdenCompra compra = OrdenCompra.borradorPorReposicion(
-                repuesto.proveedorHabitual(), repuesto.getCodigo(), cantidad, repuesto.getPrecio());
-        compra.asignarNumero(consecutivos.siguienteOrdenCompra());
-        ordenesCompra.guardar(compra);
-        log.info("Reposicion automatica: orden de compra {} por {} unidades de {}",
-                compra.getNumero(), cantidad, repuesto.getCodigo());
+        inventario.generarReposicion(e.getCodigoRepuesto()).ifPresentOrElse(
+                compra -> log.info("Reposicion automatica: orden de compra {} por {} unidades de {}",
+                        compra.getNumero(), compra.getItems().get(0).getCantidad(), e.getCodigoRepuesto()),
+                () -> log.info("{} ya tiene una orden de compra abierta; no se genera otra",
+                        e.getCodigoRepuesto()));
     }
 }

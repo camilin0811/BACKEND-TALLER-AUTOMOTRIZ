@@ -139,13 +139,17 @@ class DetalleDeAgregadosTest {
         }
 
         @Test
-        @DisplayName("la recepcion nunca supera lo pedido")
+        @DisplayName("la recepcion nunca supera lo pedido: el excedente se rechaza")
         void recepcionTopada() {
             ItemOrdenCompra item = new ItemOrdenCompra("PAST-001", 20, 0, new BigDecimal("70000"));
             item.recibir(15);
-            item.recibir(15);
 
-            assertThat(item.getCantidadRecibida()).isEqualTo(20);
+            // Antes se topaba en silencio y el stock sumaba igual las 15.
+            assertThatThrownBy(() -> item.recibir(15))
+                    .isInstanceOf(com.taller.dominio.excepcion.ReglaNegocioException.class)
+                    .hasMessageContaining("5");
+            assertThat(item.getCantidadRecibida()).isEqualTo(15);
+            item.recibir(5);
             assertThat(item.estaCompleto()).isTrue();
             assertThat(item.pendiente()).isZero();
         }

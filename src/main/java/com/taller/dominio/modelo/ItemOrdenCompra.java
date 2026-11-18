@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 public class ItemOrdenCompra {
 
     private final String codigoRepuesto;
-    private final int cantidad;
+    private int cantidad;
     private int cantidadRecibida;
     private final BigDecimal precioUnitario;
 
@@ -20,7 +20,20 @@ public class ItemOrdenCompra {
         if (cantidadEntregada <= 0) {
             throw new IllegalArgumentException("La cantidad recibida debe ser mayor que cero");
         }
-        this.cantidadRecibida = Math.min(cantidad, cantidadRecibida + cantidadEntregada);
+        // Antes se topaba en silencio y el stock sumaba igual la cantidad
+        // completa: recibir de mas inflaba el inventario.
+        if (cantidadEntregada > pendiente()) {
+            throw new com.taller.dominio.excepcion.ReglaNegocioException("RECEPCION_EXCEDE_PENDIENTE",
+                    "Solo quedan %d unidades pendientes de %s".formatted(pendiente(), codigoRepuesto));
+        }
+        this.cantidadRecibida += cantidadEntregada;
+    }
+
+    void cambiarCantidad(int nuevaCantidad) {
+        if (nuevaCantidad <= 0) {
+            throw new IllegalArgumentException("La cantidad debe ser mayor que cero");
+        }
+        this.cantidad = nuevaCantidad;
     }
 
     public boolean estaCompleto() {

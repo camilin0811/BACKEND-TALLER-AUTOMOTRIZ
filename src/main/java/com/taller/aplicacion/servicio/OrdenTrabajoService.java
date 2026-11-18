@@ -26,14 +26,13 @@ public class OrdenTrabajoService {
     private final ServicioRepositorio catalogoServicios;
     private final RepuestoRepositorio repuestos;
     private final InventarioService inventario;
-    private final OrdenCompraRepositorio ordenesCompra;
     private final GeneradorConsecutivos consecutivos;
     private final PublicadorEventos publicador;
 
     public OrdenTrabajoService(OrdenTrabajoRepositorio ordenes, VehiculoRepositorio vehiculos,
                                ClienteRepositorio clientes, MecanicoRepositorio mecanicos,
                                ServicioRepositorio catalogoServicios, RepuestoRepositorio repuestos,
-                               InventarioService inventario, OrdenCompraRepositorio ordenesCompra,
+                               InventarioService inventario,
                                GeneradorConsecutivos consecutivos, PublicadorEventos publicador) {
         this.ordenes = ordenes;
         this.vehiculos = vehiculos;
@@ -42,7 +41,6 @@ public class OrdenTrabajoService {
         this.catalogoServicios = catalogoServicios;
         this.repuestos = repuestos;
         this.inventario = inventario;
-        this.ordenesCompra = ordenesCompra;
         this.consecutivos = consecutivos;
         this.publicador = publicador;
     }
@@ -130,21 +128,13 @@ public class OrdenTrabajoService {
         if (!repuesto.hayDisponibilidad(cantidad)) {
             orden.marcarEsperaRepuesto(usuario);
             persistirYPublicar(orden);
-            generarReposicion(repuesto, cantidad);
+            inventario.generarReposicion(codigoRepuesto);
             throw new StockInsuficienteException(codigoRepuesto, repuesto.getStock(), cantidad);
         }
 
         inventario.consumir(codigoRepuesto, cantidad, idOrden);
         orden.registrarRepuesto(repuesto.aLinea(cantidad));
         return persistirYPublicar(orden);
-    }
-
-    private void generarReposicion(Repuesto repuesto, int cantidadFaltante) {
-        int cantidadPedido = Math.max(cantidadFaltante, repuesto.getStockMinimo() * 2);
-        OrdenCompra compra = OrdenCompra.borradorPorReposicion(
-                repuesto.proveedorHabitual(), repuesto.getCodigo(), cantidadPedido, repuesto.getPrecio());
-        compra.asignarNumero(consecutivos.siguienteOrdenCompra());
-        ordenesCompra.guardar(compra);
     }
 
     @Transactional
