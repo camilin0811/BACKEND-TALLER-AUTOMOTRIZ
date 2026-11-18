@@ -117,8 +117,10 @@ public class OrdenTrabajoControlador {
                     dto.canal() == null ? CanalAprobacion.PRESENCIAL : CanalAprobacion.valueOf(dto.canal()),
                     usuario);
             case RECHAZADA -> ordenes.rechazarCotizacion(id, dto.motivo(), usuario);
-            case EN_REPARACION -> ordenes.asignarMecanico(id, dto.idMecanico(), usuario);
-            case EN_ESPERA_REPUESTO -> ordenes.reanudar(id, usuario);
+            // Antes EN_ESPERA_REPUESTO reanudaba la reparacion (al reves): el
+            // boton del mecanico "Reportar falta de repuesto" siempre fallaba.
+            case EN_REPARACION -> ordenes.pasarAReparacion(id, dto.idMecanico(), usuario);
+            case EN_ESPERA_REPUESTO -> ordenes.ponerEnEsperaDeRepuesto(id, usuario);
             case CERRADA -> ordenes.cerrar(id, usuario);
             case ENTREGADA -> ordenes.entregar(id, usuario);
             default -> throw new IllegalArgumentException(

@@ -185,6 +185,27 @@ public class OrdenTrabajoService {
         return persistirYPublicar(orden);
     }
 
+    /** El mecanico detiene la reparacion porque le falta un repuesto. */
+    @Transactional
+    public OrdenTrabajo ponerEnEsperaDeRepuesto(String idOrden, String usuario) {
+        OrdenTrabajo orden = obtener(idOrden);
+        orden.marcarEsperaRepuesto(usuario);
+        return persistirYPublicar(orden);
+    }
+
+    /**
+     * Pasar a "En reparacion" significa dos cosas segun de donde venga la
+     * orden: comenzar (desde Aprobada, con mecanico) o reanudar (desde En
+     * espera de repuesto, cuando ya llego).
+     */
+    @Transactional
+    public OrdenTrabajo pasarAReparacion(String idOrden, String idMecanico, String usuario) {
+        if (obtener(idOrden).getEstado() == com.taller.dominio.modelo.EstadoOrden.EN_ESPERA_REPUESTO) {
+            return reanudar(idOrden, usuario);
+        }
+        return asignarMecanico(idOrden, idMecanico, usuario);
+    }
+
     @Transactional
     public OrdenTrabajo reanudar(String idOrden, String usuario) {
         OrdenTrabajo orden = obtener(idOrden);
