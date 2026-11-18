@@ -1,5 +1,6 @@
 package com.taller.api.controlador;
 
+import com.taller.api.dto.ConsultaPublicaDTO;
 import com.taller.api.dto.OrdenDetalleDTO;
 import com.taller.api.mapeador.MapeadorApi;
 import com.taller.aplicacion.servicio.ClienteService;
@@ -9,13 +10,13 @@ import com.taller.dominio.modelo.Cliente;
 import com.taller.dominio.modelo.OrdenTrabajo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.web.bind.annotation.GetMapping;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Comparator;
-import java.util.List;
 
 /**
  * Consulta publica del cliente.
@@ -24,6 +25,11 @@ import java.util.List;
  * hueco de privacidad: las placas se leen en la calle, y cualquiera podria ver
  * cuanto paga un tercero por su reparacion. La historia HU-18 ya lo planteaba
  * asi: el cliente entra con su documento.
+ *
+ * <p>Es POST con cuerpo JSON, no GET con parametros: asi la placa y el
+ * documento no quedan en los registros de acceso ni en el historial. Y esta
+ * limitada por IP ({@code LimiteConsultaPublica}) para que nadie pueda
+ * adivinar documentos probando por fuerza bruta.
  */
 @RestController
 @RequestMapping("/api/v1/publico")
@@ -38,21 +44,32 @@ public class ConsultaPublicaControlador {
         this.clientes = clientes;
     }
 
-    @GetMapping("/orden")
-    @Operation(summary = "Estado de la orden mas reciente de un vehiculo, verificando el documento del cliente")
-    public OrdenDetalleDTO consultar(@RequestParam String placa, @RequestParam String documento) {
-        Cliente cliente = clientes.obtenerPorDocumento(documento.trim());
+    @PostMapping("/orden")
+    @Operation(summary = "Estado de la orden más reciente de un vehículo, verificando el documento del cliente")
+    public OrdenDetalleDTO consultar(@Valid @RequestBody ConsultaPublicaDTO consulta) {
+        String placa = consulta.placa().toUpperCase();
 
-        List<OrdenTrabajo> delVehiculo = ordenes.listarPorPlaca(placa.trim().toUpperCase());
-        OrdenTrabajo suya = delVehiculo.stream()
+        // La misma respuesta si el documento no existe, si la placa no existe
+        // o si la placa no es de ese cliente: responder distinto permitiria
+        // descubrir quien es cliente del taller, o de quien es un vehiculo,
+        // probando documentos. Y el mensaje no repite los datos enviados.
+        Cliente cliente;
+        try {
+            cliente = clientes.obtenerPorDocumento(consulta.documento());
+        } catch (RecursoNoEncontradoException e) {
+            throw sinResultado();
+        }
+
+        OrdenTrabajo suya = ordenes.listarPorPlaca(placa).stream()
                 .filter(o -> o.getCliente() != null && cliente.getId().equals(o.getCliente().id()))
                 .max(Comparator.comparing(OrdenTrabajo::getFechaIngreso))
-                // El mismo error tanto si la placa no existe como si no es de
-                // este cliente: responder distinto permitiria descubrir a quien
-                // pertenece un vehiculo probando documentos.
-                .orElseThrow(() -> new RecursoNoEncontradoException(
-                        "orden para la placa y documento indicados", placa));
+                .orElseThrow(ConsultaPublicaControlador::sinResultado);
 
         return MapeadorApi.aDetalle(suya);
+    }
+
+    private static RecursoNoEncontradoException sinResultado() {
+        return RecursoNoEncontradoException.conMensaje(
+                "No encontramos órdenes con esa placa y ese documento.");
     }
 }

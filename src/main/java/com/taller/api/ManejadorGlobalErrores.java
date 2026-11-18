@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -74,7 +76,7 @@ public class ManejadorGlobalErrores {
         Map<String, Object> campos = new LinkedHashMap<>();
         e.getBindingResult().getFieldErrors()
                 .forEach(error -> campos.put(error.getField(), error.getDefaultMessage()));
-        return construir(HttpStatus.BAD_REQUEST, "VALIDACION", "Hay campos invalidos en la solicitud",
+        return construir(HttpStatus.BAD_REQUEST, "VALIDACION", "Hay campos inválidos en la solicitud",
                 req, campos);
     }
 
@@ -83,15 +85,30 @@ public class ManejadorGlobalErrores {
     public ResponseEntity<ErrorRespuesta> parametroFaltante(MissingServletRequestParameterException e,
                                                             HttpServletRequest req) {
         return construir(HttpStatus.BAD_REQUEST, "PARAMETRO_FALTANTE",
-                "Falta el parametro obligatorio '%s'".formatted(e.getParameterName()), req,
+                "Falta el parámetro obligatorio '%s'".formatted(e.getParameterName()), req,
                 Map.of("parametro", e.getParameterName()));
+    }
+
+    /** Cuerpo ausente o que no es JSON valido: tambien es un error de la peticion. */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorRespuesta> cuerpoIlegible(HttpMessageNotReadableException e,
+                                                         HttpServletRequest req) {
+        return construir(HttpStatus.BAD_REQUEST, "CUERPO_INVALIDO",
+                "El cuerpo de la solicitud falta o no es un JSON válido", req, null);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorRespuesta> metodo(HttpRequestMethodNotSupportedException e,
+                                                 HttpServletRequest req) {
+        return construir(HttpStatus.METHOD_NOT_ALLOWED, "METODO_NO_PERMITIDO",
+                "Este recurso no admite el método %s".formatted(e.getMethod()), req, null);
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorRespuesta> tipoInvalido(MethodArgumentTypeMismatchException e,
                                                        HttpServletRequest req) {
         return construir(HttpStatus.BAD_REQUEST, "PARAMETRO_INVALIDO",
-                "El valor de '%s' no es valido".formatted(e.getName()), req,
+                "El valor de '%s' no es válido".formatted(e.getName()), req,
                 Map.of("parametro", String.valueOf(e.getName())));
     }
 
@@ -106,7 +123,7 @@ public class ManejadorGlobalErrores {
         log.error("Error inesperado [{}] en {}", correlacion, req.getRequestURI(), e);
         ErrorRespuesta cuerpo = new ErrorRespuesta(Instant.now(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal Server Error", "ERROR_INTERNO",
-                "Ocurrio un error inesperado. Reporte el identificador de correlacion.",
+                "Ocurrió un error inesperado. Reporte el identificador de correlación.",
                 req.getRequestURI(), correlacion, null);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(cuerpo);
     }
