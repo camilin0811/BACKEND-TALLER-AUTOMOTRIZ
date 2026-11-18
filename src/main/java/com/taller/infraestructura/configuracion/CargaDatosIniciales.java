@@ -77,6 +77,7 @@ public class CargaDatosIniciales implements ApplicationRunner {
         // creada antes de que existiera la autenticacion se quedaria sin
         // ninguna credencial y nadie podria entrar.
         cargarUsuarios();
+        vincularMecanicos();
         corregirNombresSinTilde();
         corregirCatalogoSinTilde();
         recalcularBorradoresDeCompra();
@@ -89,7 +90,6 @@ public class CargaDatosIniciales implements ApplicationRunner {
         cargarCatalogoDeServicios();
         cargarInventario();
         String idCliente = cargarClienteConVehiculos();
-        cargarPersonal();
 
         log.info("Carga inicial lista. Cliente de prueba: {} | placas ABC123 (automovil) y XYZ12D (motocicleta)",
                 idCliente);
@@ -279,14 +279,34 @@ public class CargaDatosIniciales implements ApplicationRunner {
     }
 
     /**
-     * Tres mecanicos, no uno.
+     * Tres mecanicos, cada uno con su usuario y su ficha de empleado
+     * vinculados (el usuario guarda el id de la ficha en idPersona).
      *
-     * <p>Con un solo mecanico la demostracion se agota: al asignarlo queda
-     * ocupado, y si la orden se bloquea esperando repuesto no se libera.
+     * <p>El selector de mecanico de una orden lista los usuarios con rol
+     * mecanico, y la orden guarda la ficha: sin el vinculo nadie se podria
+     * asignar. Con un solo mecanico la demostracion ademas se agota: al
+     * asignarlo queda ocupado. Es idempotente: busca la ficha por documento
+     * y el usuario por nombre de usuario antes de crear nada.
      */
-    private void cargarPersonal() {
-        mecanicos.guardar(Mecanico.nuevo("Mecánico de Prueba Uno", "20000001", "MEC-01", "frenos"));
-        mecanicos.guardar(Mecanico.nuevo("Mecánico de Prueba Dos", "20000002", "MEC-02", "motor"));
-        mecanicos.guardar(Mecanico.nuevo("Mecánico de Prueba Tres", "20000003", "MEC-03", "electricidad"));
+    private void vincularMecanicos() {
+        String[][] equipo = {
+                {"mecanico01", "Mecánico de Prueba Uno", "20000001", "MEC-01", "frenos"},
+                {"mecanico02", "Mecánico de Prueba Dos", "20000002", "MEC-02", "motor"},
+                {"mecanico03", "Mecánico de Prueba Tres", "20000003", "MEC-03", "electricidad"},
+        };
+        var fichas = mecanicos.listar();
+        for (String[] m : equipo) {
+            Mecanico ficha = fichas.stream().filter(f -> m[2].equals(f.getDocumento())).findFirst()
+                    .orElseGet(() -> mecanicos.guardar(Mecanico.nuevo(m[1], m[2], m[3], m[4])));
+            var usuario = usuarios.buscarPorUsuario(m[0]);
+            if (usuario.isEmpty()) {
+                autenticacion.registrar(m[0], "taller2026", Rol.MECANICO, m[1], ficha.getId());
+                log.info("Mecánico de demostración {} creado y vinculado a {}", m[0], ficha.getCodigo());
+            } else if (usuario.get().getIdPersona() == null) {
+                mongo.updateFirst(Query.query(Criteria.where("usuario").is(m[0])),
+                        Update.update("idPersona", ficha.getId()), "usuarios");
+                log.info("Usuario {} vinculado a la ficha {}", m[0], ficha.getCodigo());
+            }
+        }
     }
 }
