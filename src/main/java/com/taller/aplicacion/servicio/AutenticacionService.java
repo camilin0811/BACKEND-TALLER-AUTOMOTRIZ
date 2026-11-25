@@ -13,6 +13,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+/**
+ * Para qué sirve: Valida usuario y clave, emite el token de sesión y cambia la clave.
+ * <p>PATRÓN Service Layer (capa de servicio, fachada de casos de uso): orquesta el caso de uso: carga
+ *     del repositorio, delega las reglas en el dominio y guarda. Los controladores solo hablan con esta
+ *     fachada.
+ * <p>PATRÓN Inyección de dependencias / Inversión de control: recibe los puertos (interfaces del
+ *     dominio) por constructor; no conoce MongoDB ni las integraciones concretas.
+ */
 @Service
 public class AutenticacionService {
 

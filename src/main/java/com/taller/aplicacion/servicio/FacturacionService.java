@@ -21,6 +21,17 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 
+/**
+ * Para qué sirve: Emite la factura al cerrar la orden, la envía a la DIAN, registra pagos y
+ * reintenta los envíos pendientes.
+ * <p>PATRÓN Service Layer (capa de servicio, fachada de casos de uso): orquesta el caso de uso: carga
+ *     del repositorio, delega las reglas en el dominio y guarda. Los controladores solo hablan con esta
+ *     fachada.
+ * <p>PATRÓN Inyección de dependencias / Inversión de control: recibe los puertos (interfaces del
+ *     dominio) por constructor; no conoce MongoDB ni las integraciones concretas.
+ * <p>PATRÓN Observer (publicar/suscribir): actúa como emisor: publica FacturaValidada en el
+ *     PublicadorEventos y los manejadores suscritos reaccionan.
+ */
 @Service
 public class FacturacionService {
 
@@ -73,6 +84,7 @@ public class FacturacionService {
             Factura guardada = facturas.guardar(factura);
             orden.marcarFacturada(guardada.getId(), "sistema");
             ordenes.guardar(orden);
+            // PATRÓN Observer: se notifica que la DIAN validó la factura; ManejadorNotificaciones reacciona.
             publicador.publicar(new FacturaValidada(guardada.getId(), idOrden, guardada.getCufe()));
             return guardada;
         }

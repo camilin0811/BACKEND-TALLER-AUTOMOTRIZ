@@ -16,6 +16,16 @@ import java.util.List;
  *
  * <p>El servicio orquesta; las reglas viven en el agregado. Tras cada
  * operacion persiste y publica los eventos que la orden haya acumulado.
+ *
+ * <p>Para qué sirve: Casos de uso de la orden de trabajo, desde la recepción del vehículo hasta su
+ * entrega.
+ * <p>PATRÓN Service Layer (capa de servicio, fachada de casos de uso): orquesta el caso de uso: carga
+ *     del repositorio, delega las reglas en el dominio y guarda. Los controladores solo hablan con esta
+ *     fachada.
+ * <p>PATRÓN Inyección de dependencias / Inversión de control: recibe los puertos (interfaces del
+ *     dominio) por constructor; no conoce MongoDB ni las integraciones concretas.
+ * <p>PATRÓN Eventos de dominio (DDD): después de guardar la orden publica los eventos de dominio que
+ *     ella acumuló (eventosPendientes) y luego los limpia.
  */
 @Service
 public class OrdenTrabajoService {
@@ -259,6 +269,7 @@ public class OrdenTrabajoService {
         OrdenTrabajo guardada = ordenes.guardar(orden);
         List<EventoDominio> pendientes = List.copyOf(orden.eventosPendientes());
         orden.limpiarEventos();
+        // PATRÓN Observer + Eventos de dominio: se publican los eventos de la orden ya guardada.
         publicador.publicarTodos(pendientes);
         return guardada;
     }

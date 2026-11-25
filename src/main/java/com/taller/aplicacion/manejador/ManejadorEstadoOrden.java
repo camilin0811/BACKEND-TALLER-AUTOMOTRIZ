@@ -13,6 +13,10 @@ import java.util.Set;
  *
  * <p>La validacion de las transiciones vive en el agregado; este manejador se
  * ocupa de la observabilidad: registrar que paso, cuando y sobre que orden.
+ *
+ * <p>Para qué sirve: M1: deja en el registro (log) la traza de cada evento de la orden.
+ * <p>PATRÓN Observer (publicar/suscribir): es un observador concreto: soporta() declara qué eventos le
+ *     interesan y manejar() reacciona; el servicio que emite el evento no sabe que existe.
  */
 @Component
 public class ManejadorEstadoOrden extends ManejadorEventos {

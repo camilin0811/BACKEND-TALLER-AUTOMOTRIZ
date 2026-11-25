@@ -15,6 +15,10 @@ import java.util.stream.Collectors;
  * la persona se resuelve al leer, asi un cambio de nombre no deja el
  * historial desactualizado. Lo que no corresponde a un usuario (datos de
  * demostracion o procesos automaticos) se muestra como "Sistema".
+ *
+ * <p>Para qué sirve: Resuelve el nombre y el rol de quien hizo cada paso del historial a partir de su
+ * nombre de usuario.
+ * <p>Patrones: ninguno de diseño específico; es una pieza sencilla de su capa.
  */
 @Service
 public class DirectorioUsuarios {

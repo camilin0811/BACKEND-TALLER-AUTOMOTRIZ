@@ -16,6 +16,12 @@ import org.springframework.stereotype.Component;
 import java.util.Set;
 
 /** M4: facturacion al cierre y programacion del mantenimiento preventivo. */
+/**
+ * Para qué sirve: M4: emite la factura cuando se cierra la orden y programa el mantenimiento
+ * preventivo cuando se entrega el vehículo.
+ * <p>PATRÓN Observer (publicar/suscribir): es un observador concreto: soporta() declara qué eventos le
+ *     interesan y manejar() reacciona; el servicio que emite el evento no sabe que existe.
+ */
 @Component
 public class ManejadorFacturacion extends ManejadorEventos {
 

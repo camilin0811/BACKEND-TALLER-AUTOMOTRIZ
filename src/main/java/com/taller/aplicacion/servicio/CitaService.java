@@ -14,6 +14,15 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Para qué sirve: Agenda citas, revisa la disponibilidad, propone horarios alternativos y confirma
+ * o cancela.
+ * <p>PATRÓN Service Layer (capa de servicio, fachada de casos de uso): orquesta el caso de uso: carga
+ *     del repositorio, delega las reglas en el dominio y guarda. Los controladores solo hablan con esta
+ *     fachada.
+ * <p>PATRÓN Inyección de dependencias / Inversión de control: recibe los puertos (interfaces del
+ *     dominio) por constructor; no conoce MongoDB ni las integraciones concretas.
+ */
 @Service
 public class CitaService {
 

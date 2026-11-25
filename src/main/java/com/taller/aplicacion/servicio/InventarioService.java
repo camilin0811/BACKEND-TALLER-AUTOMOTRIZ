@@ -15,6 +15,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * Para qué sirve: Repuestos, consumo en órdenes, movimientos, alertas de stock bajo y órdenes de
+ * compra de reposición.
+ * <p>PATRÓN Service Layer (capa de servicio, fachada de casos de uso): orquesta el caso de uso: carga
+ *     del repositorio, delega las reglas en el dominio y guarda. Los controladores solo hablan con esta
+ *     fachada.
+ * <p>PATRÓN Inyección de dependencias / Inversión de control: recibe los puertos (interfaces del
+ *     dominio) por constructor; no conoce MongoDB ni las integraciones concretas.
+ * <p>PATRÓN Observer (publicar/suscribir): actúa como emisor: publica StockBajoDetectado en el
+ *     PublicadorEventos y los manejadores suscritos reaccionan.
+ */
 @Service
 public class InventarioService {
 
@@ -69,6 +80,7 @@ public class InventarioService {
         repuestos.guardar(repuesto);
         movimientos.guardar(MovimientoInventario.salida(codigo, cantidad, idOrden, repuesto.getStock()));
         if (repuesto.requiereReposicion()) {
+            // PATRÓN Observer: se notifica el stock bajo; ManejadorInventario genera la reposición.
             publicador.publicar(new StockBajoDetectado(codigo, repuesto.getStock(), repuesto.getStockMinimo()));
         }
         return repuesto;

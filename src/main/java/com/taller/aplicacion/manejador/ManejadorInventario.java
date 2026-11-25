@@ -14,6 +14,11 @@ import org.springframework.stereotype.Component;
  * ({@code Repuesto.cantidadReposicion}) y la creacion de la orden en
  * {@link InventarioService#generarReposicion}, el mismo camino que usa un
  * consumo rechazado por falta de stock.
+ *
+ * <p>Para qué sirve: M3: genera una orden de compra de reposición cuando un repuesto baja del stock
+ * mínimo.
+ * <p>PATRÓN Observer (publicar/suscribir): es un observador concreto: soporta() declara qué eventos le
+ *     interesan y manejar() reacciona; el servicio que emite el evento no sabe que existe.
  */
 @Component
 public class ManejadorInventario extends ManejadorEventos {

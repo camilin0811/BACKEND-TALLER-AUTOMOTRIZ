@@ -15,6 +15,12 @@ import org.springframework.stereotype.Component;
 import java.util.Set;
 
 /** M2: traduce eventos en mensajes al cliente. */
+/**
+ * Para qué sirve: M2: avisa al cliente por WhatsApp de la cotización, de su aprobación y de que el
+ * vehículo está listo.
+ * <p>PATRÓN Observer (publicar/suscribir): es un observador concreto: soporta() declara qué eventos le
+ *     interesan y manejar() reacciona; el servicio que emite el evento no sabe que existe.
+ */
 @Component
 public class ManejadorNotificaciones extends ManejadorEventos {
 
