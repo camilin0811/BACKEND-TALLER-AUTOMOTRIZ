@@ -44,8 +44,9 @@ public class InventarioControlador {
     @PostMapping("/repuestos")
     @Operation(summary = "Crea un repuesto")
     public ResponseEntity<Repuesto> crear(@Valid @RequestBody CrearRepuestoDTO dto) {
-        Repuesto creado = inventario.crear(Repuesto.nuevo(dto.codigo(), dto.nombre(), dto.precio(),
-                dto.stock(), dto.stockMinimo()));
+        // El codigo se guarda en mayusculas: "past-001" y "PAST-001" son el mismo repuesto.
+        Repuesto creado = inventario.crear(Repuesto.nuevo(dto.codigo().trim().toUpperCase(java.util.Locale.ROOT),
+                dto.nombre().trim(), dto.precio(), dto.stock(), dto.stockMinimo()));
         return ResponseEntity.created(URI.create("/api/v1/repuestos/" + creado.getCodigo())).body(creado);
     }
 

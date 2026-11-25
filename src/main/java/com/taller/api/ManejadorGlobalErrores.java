@@ -5,6 +5,7 @@ import com.taller.dominio.excepcion.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.Instant;
 import java.util.LinkedHashMap;
@@ -116,6 +119,26 @@ public class ManejadorGlobalErrores {
         return construir(HttpStatus.BAD_REQUEST, "PARAMETRO_INVALIDO",
                 "El valor de '%s' no es válido".formatted(e.getName()), req,
                 Map.of("parametro", String.valueOf(e.getName())));
+    }
+
+    /**
+     * Ruta inexistente. Spring 6.1 la reporta como NoResourceFoundException;
+     * sin este manejador caia en el generico y respondia 500 en lugar de 404.
+     */
+    @ExceptionHandler({NoResourceFoundException.class, NoHandlerFoundException.class})
+    public ResponseEntity<ErrorRespuesta> rutaInexistente(Exception e, HttpServletRequest req) {
+        return construir(HttpStatus.NOT_FOUND, "RUTA_NO_ENCONTRADA",
+                "La ruta %s %s no existe".formatted(req.getMethod(), req.getRequestURI()), req, null);
+    }
+
+    /**
+     * Respaldo de los indices unicos de MongoDB: si dos peticiones crean lo
+     * mismo a la vez, la segunda recibe un 409 claro y no un 500.
+     */
+    @ExceptionHandler(DuplicateKeyException.class)
+    public ResponseEntity<ErrorRespuesta> claveDuplicada(DuplicateKeyException e, HttpServletRequest req) {
+        return construir(HttpStatus.CONFLICT, "RECURSO_DUPLICADO",
+                "Ya existe un registro con ese identificador", req, null);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

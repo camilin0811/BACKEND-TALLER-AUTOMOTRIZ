@@ -1,6 +1,7 @@
 package com.taller.aplicacion.servicio;
 
 import com.taller.dominio.evento.StockBajoDetectado;
+import com.taller.dominio.excepcion.RecursoDuplicadoException;
 import com.taller.dominio.excepcion.RecursoNoEncontradoException;
 import com.taller.dominio.puerto.GeneradorConsecutivos;
 import com.taller.dominio.modelo.MovimientoInventario;
@@ -66,6 +67,12 @@ public class InventarioService {
     }
 
     public Repuesto crear(Repuesto repuesto) {
+        // Sin esta revision, el indice unico de MongoDB rechazaba el duplicado
+        // con una excepcion tecnica que llegaba al usuario como error 500.
+        if (repuestos.buscarPorCodigo(repuesto.getCodigo()).isPresent()) {
+            throw new RecursoDuplicadoException(
+                    "Ya existe un repuesto con el código %s".formatted(repuesto.getCodigo()));
+        }
         return repuestos.guardar(repuesto);
     }
 
