@@ -1,0 +1,2024 @@
+{
+  "info": {
+    "_postman_id": "31aaa8d0-595c-5881-87ae-92ca55e2300f",
+    "name": "Taller Automotriz",
+    "description": "API REST del sistema de gestión del taller (Spring Boot, /api/v1).\n\n1. Elija el entorno *Taller Automotriz* y escriba usuario y clave en él.\n2. Ejecute **Autenticación › Login**: el token queda en {{token}}.\n3. El resto de peticiones usan Bearer {{token}}. Los ids se encadenan solos: las peticiones que crean o listan recursos guardan su id en la variable que usan las siguientes.\n\nEl servidor gratuito de Render duerme tras 15 minutos sin uso: la primera petición puede tardar cerca de un minuto.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "id": "323a14aa-1749-5a25-9e27-e525c79c5394",
+      "name": "Autenticación",
+      "description": "Login (sin token) y datos del usuario autenticado.",
+      "item": [
+        {
+          "id": "cd705df3-5479-569a-a8ea-f2caa835467a",
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    pm.test(\"La respuesta trae un token\", function () {",
+                  "        pm.expect(json.token).to.be.a('string').and.not.empty;",
+                  "    });",
+                  "    pm.collectionVariables.set(\"token\", json.token);",
+                  "    if (pm.environment.has(\"token\")) pm.environment.set(\"token\", json.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Devuelve un JWT. El test lo guarda en {{token}}, que la colección usa como Bearer.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"{{usuario}}\",\n  \"clave\": \"{{clave}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "349fd1e8-5bb7-5cbc-9109-97a7719e8712",
+          "name": "Usuario autenticado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/yo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "yo"
+              ]
+            },
+            "description": "Usuario, nombre, rol y permisos del token actual."
+          },
+          "response": []
+        },
+        {
+          "id": "1666532f-8142-5c86-a4ac-9c1de083bd30",
+          "name": "Cambiar clave",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/clave",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "clave"
+              ]
+            },
+            "description": "La clave nueva debe tener al menos 8 caracteres. Defina {{claveNueva}} antes de enviar.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"claveActual\": \"{{clave}}\",\n  \"claveNueva\": \"{{claveNueva}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "id": "9112bcb9-1f6d-563f-93a3-462295ba9030",
+      "name": "Clientes",
+      "description": "Roles: RECEPCIONISTA, ADMINISTRADOR.",
+      "item": [
+        {
+          "id": "2cb5f6a2-7bb7-5cf1-a624-876a337b554d",
+          "name": "Listar clientes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/clientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "0fb2fad7-9099-566e-97a9-a27dae1b3bc1",
+          "name": "Registrar cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "if (pm.response.code < 300) {",
+                  "    const json = pm.response.json();",
+                  "    const valor = json.id;",
+                  "    if (valor) {",
+                  "        pm.collectionVariables.set(\"clienteId\", valor);",
+                  "        if (pm.environment.has(\"clienteId\")) pm.environment.set(\"clienteId\", valor);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/clientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes"
+              ]
+            },
+            "description": "documento: 5 a 15 dígitos. telefono: 7 a 15 dígitos, con + opcional. El test guarda el id en {{clienteId}}.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Cliente de Ejemplo\",\n  \"documento\": \"10000099\",\n  \"telefono\": \"+573001234567\",\n  \"email\": \"cliente.ejemplo@example.com\",\n  \"direccion\": \"Calle 10 # 20-30\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "ebd9926b-a005-5f71-af4d-cbbd6171c5dd",
+          "name": "Buscar por documento",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "if (pm.response.code < 300) {",
+                  "    const json = pm.response.json();",
+                  "    const valor = json.id;",
+                  "    if (valor) {",
+                  "        pm.collectionVariables.set(\"clienteId\", valor);",
+                  "        if (pm.environment.has(\"clienteId\")) pm.environment.set(\"clienteId\", valor);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/clientes/documento/{{documento}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes",
+                "documento",
+                "{{documento}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "324f6790-b6e1-55d5-835b-832af9078366",
+          "name": "Obtener cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/clientes/{{clienteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes",
+                "{{clienteId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "dc402a00-eb22-5bbb-a894-121c2913e0b3",
+          "name": "Vehículos del cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/clientes/{{clienteId}}/vehiculos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "clientes",
+                "{{clienteId}}",
+                "vehiculos"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "id": "e9de7203-808c-570f-8c5c-abbb360111ad",
+      "name": "Vehículos",
+      "description": "Roles: RECEPCIONISTA, ADMINISTRADOR.",
+      "item": [
+        {
+          "id": "ca6ccc01-79e1-5025-b0a4-e0de4c0e1926",
+          "name": "Registrar automóvil",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "if (pm.response.code < 300) {",
+                  "    const json = pm.response.json();",
+                  "    const valor = json.placa;",
+                  "    if (valor) {",
+                  "        pm.collectionVariables.set(\"placa\", valor);",
+                  "        if (pm.environment.has(\"placa\")) pm.environment.set(\"placa\", valor);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/vehiculos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vehiculos"
+              ]
+            },
+            "description": "tipo: AUTOMOVIL o MOTOCICLETA. placa: 3 a 8 letras o números. Los campos de automóvil son cilindrada, numeroPuertas, tipoCombustible, numeroPasajeros y tipoTransmision. El test guarda la placa en {{placa}}.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"AUTOMOVIL\",\n  \"placa\": \"{{placaNueva}}\",\n  \"idCliente\": \"{{clienteId}}\",\n  \"marca\": \"Renault\",\n  \"linea\": \"Logan\",\n  \"anio\": 2021,\n  \"kilometraje\": 32000,\n  \"vin\": \"9FBLSRAH0MM000001\",\n  \"cilindrada\": 1600,\n  \"numeroPuertas\": 4,\n  \"tipoCombustible\": \"GASOLINA\",\n  \"numeroPasajeros\": 5,\n  \"tipoTransmision\": \"MANUAL\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "71206f6e-5f0b-5d0b-a252-89eb3f80ba0b",
+          "name": "Registrar motocicleta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/vehiculos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vehiculos"
+              ]
+            },
+            "description": "Los campos de motocicleta son cilindrada, tipoMotor, numeroTiempos, categoria y llevaParrilla.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"MOTOCICLETA\",\n  \"placa\": \"{{placaNuevaMoto}}\",\n  \"idCliente\": \"{{clienteId}}\",\n  \"marca\": \"Yamaha\",\n  \"linea\": \"FZ 2.0\",\n  \"anio\": 2022,\n  \"kilometraje\": 12000,\n  \"vin\": \"9C6KE000000000001\",\n  \"cilindrada\": 150,\n  \"tipoMotor\": \"MONOCILINDRICO\",\n  \"numeroTiempos\": 4,\n  \"categoria\": \"NAKED\",\n  \"llevaParrilla\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "645b5d3d-9a9d-5951-8dce-0b4cafa8f390",
+          "name": "Obtener vehículo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vehiculos/{{placa}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vehiculos",
+                "{{placa}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "b541cc83-83ff-5c82-a4a8-eec4d98782f8",
+          "name": "Actualizar kilometraje",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/vehiculos/{{placa}}/kilometraje?valor=50000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "vehiculos",
+                "{{placa}}",
+                "kilometraje"
+              ],
+              "query": [
+                {
+                  "key": "valor",
+                  "value": "50000",
+                  "description": "Kilometraje nuevo; no puede ser menor que el actual."
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "id": "30a0aac2-ad9c-58d6-8813-1656968b216c",
+      "name": "Citas",
+      "description": "Roles: RECEPCIONISTA, ADMINISTRADOR.",
+      "item": [
+        {
+          "id": "b2f0e0a0-cfc0-5582-9eb4-5a49fe29a5d9",
+          "name": "Citas del día",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Proxima fecha habil a las 10:00, en el formato que espera la API (LocalDateTime).",
+                  "const d = new Date();",
+                  "d.setDate(d.getDate() + 1);",
+                  "while (d.getDay() === 0) d.setDate(d.getDate() + 1);",
+                  "const dos = (n) => String(n).padStart(2, '0');",
+                  "const dia = `${d.getFullYear()}-${dos(d.getMonth() + 1)}-${dos(d.getDate())}`;",
+                  "pm.variables.set(\"fechaCita\", `${dia}T10:00:00`);",
+                  "pm.variables.set(\"fechaCitaDia\", dia);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/citas?fecha={{fechaCitaDia}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "citas"
+              ],
+              "query": [
+                {
+                  "key": "fecha",
+                  "value": "{{fechaCitaDia}}",
+                  "description": "Fecha ISO (AAAA-MM-DD)."
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "a96ae1c0-01dc-52bb-8fb3-a45a580d378f",
+          "name": "Disponibilidad",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Proxima fecha habil a las 10:00, en el formato que espera la API (LocalDateTime).",
+                  "const d = new Date();",
+                  "d.setDate(d.getDate() + 1);",
+                  "while (d.getDay() === 0) d.setDate(d.getDate() + 1);",
+                  "const dos = (n) => String(n).padStart(2, '0');",
+                  "const dia = `${d.getFullYear()}-${dos(d.getMonth() + 1)}-${dos(d.getDate())}`;",
+                  "pm.variables.set(\"fechaCita\", `${dia}T10:00:00`);",
+                  "pm.variables.set(\"fechaCitaDia\", dia);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/citas/disponibilidad?fechaHora={{fechaCita}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "citas",
+                "disponibilidad"
+              ],
+              "query": [
+                {
+                  "key": "fechaHora",
+                  "value": "{{fechaCita}}",
+                  "description": "Fecha y hora ISO (AAAA-MM-DDTHH:mm:ss)."
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "8ee0075a-3a25-5137-863a-dbd151fd2dd1",
+          "name": "Agendar cita",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Proxima fecha habil a las 10:00, en el formato que espera la API (LocalDateTime).",
+                  "const d = new Date();",
+                  "d.setDate(d.getDate() + 1);",
+                  "while (d.getDay() === 0) d.setDate(d.getDate() + 1);",
+                  "const dos = (n) => String(n).padStart(2, '0');",
+                  "const dia = `${d.getFullYear()}-${dos(d.getMonth() + 1)}-${dos(d.getDate())}`;",
+                  "pm.variables.set(\"fechaCita\", `${dia}T10:00:00`);",
+                  "pm.variables.set(\"fechaCitaDia\", dia);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "if (pm.response.code < 300) {",
+                  "    const json = pm.response.json();",
+                  "    const valor = json.id;",
+                  "    if (valor) {",
+                  "        pm.collectionVariables.set(\"citaId\", valor);",
+                  "        if (pm.environment.has(\"citaId\")) pm.environment.set(\"citaId\", valor);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/citas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "citas"
+              ]
+            },
+            "description": "fechaHora debe estar en el futuro; el script la calcula. El test guarda {{citaId}}.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idCliente\": \"{{clienteId}}\",\n  \"placa\": \"{{placa}}\",\n  \"fechaHora\": \"{{fechaCita}}\",\n  \"motivo\": \"Mantenimiento de los 50.000 km\",\n  \"canal\": \"TELEFONO\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "57e23192-f4a5-5466-a4bc-1424eaceb205",
+          "name": "Confirmar o cancelar cita",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/citas/{{citaId}}/estado?estado=CONFIRMADA",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "citas",
+                "{{citaId}}",
+                "estado"
+              ],
+              "query": [
+                {
+                  "key": "estado",
+                  "value": "CONFIRMADA",
+                  "description": "CONFIRMADA confirma; cualquier otro valor cancela."
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "id": "1378d367-f6b1-51f1-98a0-62bbec25ecb8",
+      "name": "Órdenes de trabajo",
+      "description": "Roles: RECEPCIONISTA, MECANICO, ADMINISTRADOR. Asignar mecánico: solo RECEPCIONISTA y ADMINISTRADOR.",
+      "item": [
+        {
+          "id": "ed03db0c-8d7d-555d-b559-7653af93efc9",
+          "name": "Tablero de órdenes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "if (pm.response.code === 200 && !pm.collectionVariables.get('ordenId')) {",
+                  "    const json = pm.response.json();",
+                  "    const valor = json.length ? json[0].id : null;",
+                  "    if (valor) {",
+                  "        pm.collectionVariables.set(\"ordenId\", valor);",
+                  "        if (pm.environment.has(\"ordenId\")) pm.environment.set(\"ordenId\", valor);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ordenes?estado=EN_REPARACION",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ordenes"
+              ],
+              "query": [
+                {
+                  "key": "estado",
+                  "value": "EN_REPARACION",
+                  "description": "RECIBIDA, EN_DIAGNOSTICO, COTIZADA, APROBADA, RECHAZADA, EN_REPARACION, EN_ESPERA_REPUESTO, CERRADA, FACTURADA o ENTREGADA. Sin filtros: EN_REPARACION."
+                },
+                {
+                  "key": "placa",
+                  "value": "{{placa}}",
+                  "description": "Si se envía, tiene prioridad sobre estado.",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "2bdfa498-350a-568c-899e-e161ae69ed8b",
+          "name": "Crear orden",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "if (pm.response.code < 300) {",
+                  "    const json = pm.response.json();",
+                  "    const valor = json.id;",
+                  "    if (valor) {",
+                  "        pm.collectionVariables.set(\"ordenId\", valor);",
+                  "        if (pm.environment.has(\"ordenId\")) pm.environment.set(\"ordenId\", valor);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ordenes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ordenes"
+              ]
+            },
+            "description": "idCita es opcional. motivo: 5 a 500 caracteres. El test guarda {{ordenId}}.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"placa\": \"{{placa}}\",\n  \"kilometraje\": 50000,\n  \"idCita\": null,\n  \"motivo\": \"Ruido al frenar y vibración en el volante\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "65907260-3bb5-5b46-b5b7-ebc53afdc425",
+          "name": "Obtener orden",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ordenes/{{ordenId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ordenes",
+                "{{ordenId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "87f64c87-aa10-5234-9013-95052b06e728",
+          "name": "Historial de la orden",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ordenes/{{ordenId}}/historial",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ordenes",
+                "{{ordenId}}",
+                "historial"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "18e2668c-74c7-5bfd-8201-47224b817000",
+          "name": "Asignar mecánico",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ordenes/{{ordenId}}/mecanico",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ordenes",
+                "{{ordenId}}",
+                "mecanico"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idMecanico\": \"{{mecanicoId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "00fb89eb-dd2d-5fee-87f2-e710b18d0741",
+          "name": "Cambiar estado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ordenes/{{ordenId}}/estado",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ordenes",
+                "{{ordenId}}",
+                "estado"
+              ]
+            },
+            "description": "estado: EN_DIAGNOSTICO, COTIZADA, APROBADA, RECHAZADA, EN_REPARACION, EN_ESPERA_REPUESTO, CERRADA o ENTREGADA. idMecanico es obligatorio para EN_REPARACION; motivo para RECHAZADA; canal (WHATSAPP, PORTAL_WEB o PRESENCIAL, por defecto PRESENCIAL) para APROBADA. Una transición ilegal responde 409.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"EN_DIAGNOSTICO\",\n  \"idMecanico\": null,\n  \"motivo\": null,\n  \"canal\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "b6429594-d3f3-5d17-8a2a-7d6315feb33b",
+          "name": "Registrar diagnóstico",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ordenes/{{ordenId}}/diagnosticos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ordenes",
+                "{{ordenId}}",
+                "diagnosticos"
+              ]
+            },
+            "description": "Con usarEscaner: true los códigos los lee el escáner OBD-II.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usarEscaner\": false,\n  \"codigosFalla\": [\n    \"P0301\",\n    \"C0035\"\n  ],\n  \"observaciones\": \"Falla de encendido en el cilindro 1 y sensor de velocidad de rueda.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "2705c92b-3bf2-5d06-b12c-fd6f36359cc7",
+          "name": "Agregar servicio",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ordenes/{{ordenId}}/servicios?codigo={{servicioCodigo}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ordenes",
+                "{{ordenId}}",
+                "servicios"
+              ],
+              "query": [
+                {
+                  "key": "codigo",
+                  "value": "{{servicioCodigo}}",
+                  "description": "Código del catálogo, por ejemplo SRV-001."
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "aa671629-4312-5e56-95bf-e97d32b50376",
+          "name": "Consumir repuesto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ordenes/{{ordenId}}/repuestos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ordenes",
+                "{{ordenId}}",
+                "repuestos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo\": \"{{repuestoCodigo}}\",\n  \"cantidad\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "id": "60c5bc97-0112-5a57-993b-d92bf8b872df",
+      "name": "Mecánicos",
+      "description": "Roles: RECEPCIONISTA, ADMINISTRADOR.",
+      "item": [
+        {
+          "id": "445184e6-913a-5de7-a065-018ff3d09332",
+          "name": "Mecánicos asignables",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "if (pm.response.code < 300) {",
+                  "    const json = pm.response.json();",
+                  "    const valor = json.length ? json[0].idMecanico : null;",
+                  "    if (valor) {",
+                  "        pm.collectionVariables.set(\"mecanicoId\", valor);",
+                  "        if (pm.environment.has(\"mecanicoId\")) pm.environment.set(\"mecanicoId\", valor);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/mecanicos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "mecanicos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "25b1e392-2887-5594-91c4-6172e798d12d",
+          "name": "Mecánicos disponibles",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/mecanicos/disponibles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "mecanicos",
+                "disponibles"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "a83644b7-4137-5def-987a-567c1f9c862e",
+          "name": "Obtener mecánico",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/mecanicos/{{mecanicoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "mecanicos",
+                "{{mecanicoId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "id": "82fb42bf-1acb-5e28-9db3-7c151d2e43c9",
+      "name": "Facturas",
+      "description": "Roles: RECEPCIONISTA, ADMINISTRADOR.",
+      "item": [
+        {
+          "id": "b5245463-9de8-5157-af4e-e6f2ed9d12d1",
+          "name": "Facturas pendientes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "if (pm.response.code < 300) {",
+                  "    const json = pm.response.json();",
+                  "    const valor = json.length ? json[0].id : null;",
+                  "    if (valor) {",
+                  "        pm.collectionVariables.set(\"facturaId\", valor);",
+                  "        if (pm.environment.has(\"facturaId\")) pm.environment.set(\"facturaId\", valor);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/facturas/pendientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "facturas",
+                "pendientes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "0c0f0dbc-2962-5b3b-be97-ff5aa6536827",
+          "name": "Obtener factura",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/facturas/{{facturaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "facturas",
+                "{{facturaId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "066c16ae-05b1-5e66-942d-25b55d8badd8",
+          "name": "Registrar pago",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/facturas/{{facturaId}}/pagos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "facturas",
+                "{{facturaId}}",
+                "pagos"
+              ]
+            },
+            "description": "metodo: EFECTIVO, TARJETA, TRANSFERENCIA o PASARELA.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"monto\": 150000,\n  \"metodo\": \"EFECTIVO\",\n  \"referencia\": \"Caja 1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "7ceff7b4-f3b1-5599-9649-6ca90a029d7c",
+          "name": "Reenviar a la DIAN",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 202\", function () {",
+                  "    pm.response.to.have.status(202);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/facturas/{{facturaId}}/reenvio-dian",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "facturas",
+                "{{facturaId}}",
+                "reenvio-dian"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "id": "e7f0d06c-5326-52dc-8dcc-d2f340ada271",
+      "name": "Inventario",
+      "description": "Consulta: RECEPCIONISTA, MECANICO, ADMINISTRADOR. Crear repuestos y ajustar o enviar órdenes de compra: solo ADMINISTRADOR. Recibir una orden de compra: RECEPCIONISTA o ADMINISTRADOR.",
+      "item": [
+        {
+          "id": "283c5402-280c-5108-917f-ca3f60dbefb0",
+          "name": "Listar repuestos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/repuestos?bajoMinimo=false",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "repuestos"
+              ],
+              "query": [
+                {
+                  "key": "bajoMinimo",
+                  "value": "false",
+                  "description": "true: solo los que están por debajo del stock mínimo."
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "4dc82b79-18cd-5bf7-a4e1-60d8d343fe08",
+          "name": "Crear repuesto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/repuestos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "repuestos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo\": \"AMOR-003\",\n  \"nombre\": \"Amortiguador delantero\",\n  \"precio\": 185000,\n  \"stock\": 6,\n  \"stockMinimo\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "b2c6ae83-65b2-598c-bff4-05b8b2c02c77",
+          "name": "Obtener repuesto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/repuestos/{{repuestoCodigo}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "repuestos",
+                "{{repuestoCodigo}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "a6783f06-4f90-53ee-8eb1-c6e0ea98c986",
+          "name": "Movimientos del repuesto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/repuestos/{{repuestoCodigo}}/movimientos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "repuestos",
+                "{{repuestoCodigo}}",
+                "movimientos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "913868f7-3d27-52d4-a2d3-46204a3c7830",
+          "name": "Órdenes de compra",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "if (pm.response.code < 300) {",
+                  "    const json = pm.response.json();",
+                  "    const valor = json.length ? json[0].id : null;",
+                  "    if (valor) {",
+                  "        pm.collectionVariables.set(\"ordenCompraId\", valor);",
+                  "        if (pm.environment.has(\"ordenCompraId\")) pm.environment.set(\"ordenCompraId\", valor);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ordenes-compra",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ordenes-compra"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "2dd766bf-1876-5367-9217-727a5d49f2d3",
+          "name": "Ajustar cantidad de un ítem",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ordenes-compra/{{ordenCompraId}}/items/{{repuestoCodigo}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ordenes-compra",
+                "{{ordenCompraId}}",
+                "items",
+                "{{repuestoCodigo}}"
+              ]
+            },
+            "description": "cantidad: 1 a 10.000.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cantidad\": 12\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "87db3c39-0df1-512b-9239-7f3bbf07db4d",
+          "name": "Enviar orden de compra",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ordenes-compra/{{ordenCompraId}}/envio",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ordenes-compra",
+                "{{ordenCompraId}}",
+                "envio"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "id": "4cc5ff08-c24a-57b8-a698-e6282b2ac8c3",
+          "name": "Recibir orden de compra",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ordenes-compra/{{ordenCompraId}}/recepcion",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ordenes-compra",
+                "{{ordenCompraId}}",
+                "recepcion"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo\": \"{{repuestoCodigo}}\",\n  \"cantidad\": 12\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "id": "dec4744e-220d-5f4e-b2c4-bfccae6e5bdb",
+      "name": "Portal público",
+      "description": "Sin autenticación. Limitado por IP.",
+      "item": [
+        {
+          "id": "03de67eb-39de-5577-8309-e15337889dfe",
+          "name": "Consultar orden",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/publico/orden",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "publico",
+                "orden"
+              ]
+            },
+            "description": "Estado de la orden más reciente del vehículo, verificando el documento del cliente. Si no hay resultado responde 404 (el mismo mensaje en todos los casos).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"placa\": \"{{placa}}\",\n  \"documento\": \"{{documento}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "noauth"
+      }
+    },
+    {
+      "id": "188bd5e9-dd63-57d3-ac67-e5f54a79b202",
+      "name": "Webhooks",
+      "description": "Sin autenticación JWT: se valida la firma X-Hub-Signature-256.",
+      "item": [
+        {
+          "id": "742ec70d-9922-5b5f-8d8f-4932371e5162",
+          "name": "Respuesta de WhatsApp",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Firma HMAC-SHA256 del cuerpo con el secreto del webhook (variable webhookSecreto).",
+                  "// Sin secreto la firma no es valida y el backend responde 401.",
+                  "const secreto = pm.variables.get(\"webhookSecreto\") || \"\";",
+                  "const cuerpo = pm.request.body ? pm.request.body.raw : '';",
+                  "const firma = CryptoJS.HmacSHA256(cuerpo, secreto).toString(CryptoJS.enc.Hex);",
+                  "pm.request.headers.upsert({ key: \"X-Hub-Signature-256\", value: \"sha256=\" + firma });"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status en [200, 401]\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 401]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/webhooks/whatsapp?idOrden={{ordenId}}&texto=APRUEBO",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "webhooks",
+                "whatsapp"
+              ],
+              "query": [
+                {
+                  "key": "idOrden",
+                  "value": "{{ordenId}}"
+                },
+                {
+                  "key": "texto",
+                  "value": "APRUEBO",
+                  "description": "APRUEBO aprueba la cotización; RECHAZO la rechaza."
+                }
+              ]
+            },
+            "description": "Responde 200 con firma válida (defina {{webhookSecreto}}) y 401 sin ella.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"object\": \"whatsapp_business_account\",\n  \"entry\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "noauth"
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://taller-backend-jqhi.onrender.com/api/v1",
+      "type": "string",
+      "description": "URL base de la API."
+    },
+    {
+      "key": "usuario",
+      "value": "",
+      "type": "string",
+      "description": "Usuario del sistema."
+    },
+    {
+      "key": "clave",
+      "value": "",
+      "type": "string",
+      "description": "Clave del usuario. No la guarde en el archivo."
+    },
+    {
+      "key": "claveNueva",
+      "value": "",
+      "type": "string",
+      "description": "Solo para Cambiar clave."
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string",
+      "description": "Lo llena el test de Login."
+    },
+    {
+      "key": "clienteId",
+      "value": "",
+      "type": "string",
+      "description": "Lo llenan Registrar cliente o Buscar por documento."
+    },
+    {
+      "key": "documento",
+      "value": "10000001",
+      "type": "string",
+      "description": "Documento del cliente de prueba de la carga inicial."
+    },
+    {
+      "key": "placa",
+      "value": "ABC123",
+      "type": "string",
+      "description": "Placa del automóvil de prueba de la carga inicial."
+    },
+    {
+      "key": "placaNueva",
+      "value": "DEF456",
+      "type": "string",
+      "description": "Placa para registrar un automóvil nuevo."
+    },
+    {
+      "key": "placaNuevaMoto",
+      "value": "GHI78J",
+      "type": "string",
+      "description": "Placa para registrar una motocicleta nueva."
+    },
+    {
+      "key": "citaId",
+      "value": "",
+      "type": "string",
+      "description": "Lo llena Agendar cita."
+    },
+    {
+      "key": "ordenId",
+      "value": "",
+      "type": "string",
+      "description": "Lo llenan Crear orden o Tablero de órdenes."
+    },
+    {
+      "key": "mecanicoId",
+      "value": "",
+      "type": "string",
+      "description": "Lo llena Mecánicos asignables."
+    },
+    {
+      "key": "facturaId",
+      "value": "",
+      "type": "string",
+      "description": "Lo llena Facturas pendientes."
+    },
+    {
+      "key": "repuestoCodigo",
+      "value": "PAST-001",
+      "type": "string",
+      "description": "Código de repuesto de la carga inicial."
+    },
+    {
+      "key": "servicioCodigo",
+      "value": "SRV-001",
+      "type": "string",
+      "description": "Código de servicio del catálogo."
+    },
+    {
+      "key": "ordenCompraId",
+      "value": "",
+      "type": "string",
+      "description": "Lo llena Órdenes de compra."
+    },
+    {
+      "key": "webhookSecreto",
+      "value": "",
+      "type": "string",
+      "description": "Secreto del webhook de WhatsApp, solo para firmar la prueba."
+    }
+  ]
+}
