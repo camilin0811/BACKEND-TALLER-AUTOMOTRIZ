@@ -14,6 +14,11 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 /**
  * La regla de dependencias no es una intencion documentada: se verifica en
  * cada build. Si alguien importa Spring Data desde el dominio, esto falla.
+ *
+ * <p>Para qué sirve: Verifica en cada build la regla de dependencias entre capas (por ejemplo, que el
+ * dominio no use Spring).
+ * <p>PATRÓN Pruebas de arquitectura (ArchUnit): ArchUnit revisa las dependencias entre paquetes como
+ *     si fuera una prueba más.
  */
 @DisplayName("Reglas de arquitectura")
 class ArquitecturaTest {

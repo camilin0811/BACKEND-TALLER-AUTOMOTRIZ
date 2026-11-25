@@ -8,6 +8,10 @@ import java.util.List;
  *
  * <p>Evita repetir constructores de doce parametros en cada prueba: cuando la
  * entidad cambia, se ajusta este archivo y no los cincuenta tests.
+ *
+ * <p>Para qué sirve: Construye órdenes de trabajo en estados conocidos para las pruebas.
+ * <p>PATRÓN Object Mother (pruebas): centraliza la creación de objetos de prueba: si la entidad
+ *     cambia, se ajusta solo este archivo.
  */
 public final class OrdenTrabajoMother {
 

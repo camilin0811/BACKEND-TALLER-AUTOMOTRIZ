@@ -14,6 +14,10 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Para qué sirve: Pruebas unitarias de la consulta pública del portal.
+ * <p>Patrones: ninguno de diseño específico; es una pieza sencilla de su capa.
+ */
 @DisplayName("Consulta pública del cliente")
 class ConsultaPublicaTest {
 

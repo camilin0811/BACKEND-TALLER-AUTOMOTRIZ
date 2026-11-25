@@ -13,6 +13,10 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+/**
+ * Para qué sirve: Pruebas unitarias de los detalles de los agregados.
+ * <p>Patrones: ninguno de diseño específico; es una pieza sencilla de su capa.
+ */
 @DisplayName("Detalle de los agregados")
 class DetalleDeAgregadosTest {
 

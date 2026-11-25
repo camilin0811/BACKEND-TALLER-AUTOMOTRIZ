@@ -7,6 +7,10 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+/**
+ * Para qué sirve: Pruebas unitarias de las reglas de mecánicos y recepción.
+ * <p>Patrones: ninguno de diseño específico; es una pieza sencilla de su capa.
+ */
 @DisplayName("Asignación de mecánico y recepción del vehículo")
 class MecanicoYRecepcionTest {
 

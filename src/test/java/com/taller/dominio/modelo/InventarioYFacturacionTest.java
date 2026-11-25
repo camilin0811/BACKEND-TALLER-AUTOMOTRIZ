@@ -13,6 +13,10 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+/**
+ * Para qué sirve: Pruebas unitarias de las reglas de inventario y facturación.
+ * <p>Patrones: ninguno de diseño específico; es una pieza sencilla de su capa.
+ */
 @DisplayName("Inventario, compras y facturacion")
 class InventarioYFacturacionTest {
 

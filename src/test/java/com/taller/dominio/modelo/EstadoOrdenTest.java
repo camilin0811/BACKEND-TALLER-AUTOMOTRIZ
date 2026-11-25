@@ -8,6 +8,10 @@ import org.junit.jupiter.params.provider.EnumSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Para qué sirve: Pruebas unitarias de la máquina de estados de la orden.
+ * <p>Patrones: ninguno de diseño específico; es una pieza sencilla de su capa.
+ */
 @DisplayName("Maquina de estados de la orden de trabajo")
 class EstadoOrdenTest {
 

@@ -17,6 +17,10 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Para qué sirve: Pruebas unitarias de los eventos de dominio y las excepciones.
+ * <p>Patrones: ninguno de diseño específico; es una pieza sencilla de su capa.
+ */
 @DisplayName("Eventos de dominio, excepciones y contratos de puerto")
 class EventosYExcepcionesTest {
 

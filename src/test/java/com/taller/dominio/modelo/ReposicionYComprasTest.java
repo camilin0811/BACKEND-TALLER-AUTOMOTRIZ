@@ -9,6 +9,10 @@ import java.math.BigDecimal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+/**
+ * Para qué sirve: Pruebas unitarias de la reposición automática y las órdenes de compra.
+ * <p>Patrones: ninguno de diseño específico; es una pieza sencilla de su capa.
+ */
 @DisplayName("Reposición y flujo de órdenes de compra")
 class ReposicionYComprasTest {
 

@@ -14,6 +14,10 @@ import java.time.LocalDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+/**
+ * Para qué sirve: Pruebas unitarias de personas, vehículos, catálogo y montos.
+ * <p>Patrones: ninguno de diseño específico; es una pieza sencilla de su capa.
+ */
 @DisplayName("Personas, catalogo y agenda")
 class PersonasVehiculosYCatalogoTest {
 
