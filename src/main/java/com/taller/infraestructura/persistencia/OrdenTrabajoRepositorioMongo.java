@@ -9,6 +9,12 @@ import java.util.List;
 import java.util.Optional;
 
 /** Adaptador de MongoDB para el puerto OrdenTrabajoRepositorio. */
+/**
+ * Para qué sirve: Guarda y consulta órdenes de trabajo en MongoDB.
+ * <p>PATRÓN Adapter: implementa el puerto OrdenTrabajoRepositorio del dominio usando Spring Data y
+ *     Mapeadores.
+ * <p>PATRÓN Repository: es la implementación concreta del repositorio.
+ */
 @Repository
 public class OrdenTrabajoRepositorioMongo implements OrdenTrabajoRepositorio {
 

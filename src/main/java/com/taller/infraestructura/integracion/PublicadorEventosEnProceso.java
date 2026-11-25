@@ -23,6 +23,13 @@ import org.springframework.stereotype.Component;
  *
  * <p>El fallo de un manejador no detiene a los demas: se registra y se sigue.
  * Una notificacion caida no puede impedir que el inventario se actualice.
+ *
+ * <p>Para qué sirve: Bus de eventos dentro del mismo proceso: entrega cada evento a los manejadores
+ * que lo soportan.
+ * <p>PATRÓN Observer (publicar/suscribir): es el sujeto: recorre los observadores (ManejadorEventos) y
+ *     notifica a los que declaran soportar el evento. Si uno falla, los demás siguen.
+ * <p>PATRÓN Adapter: implementa el puerto PublicadorEventos; se podría cambiar por RabbitMQ o Kafka
+ *     sin tocar el dominio.
  */
 @Component
 public class PublicadorEventosEnProceso implements PublicadorEventos {
@@ -36,6 +43,7 @@ public class PublicadorEventosEnProceso implements PublicadorEventos {
     }
 
     @Override
+    // PATRÓN Observer: notifica a cada suscriptor que soporta el evento.
     public void publicar(EventoDominio evento) {
         if (evento == null) {
             return;

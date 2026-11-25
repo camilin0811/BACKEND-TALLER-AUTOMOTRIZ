@@ -9,6 +9,12 @@ import java.util.List;
 import java.util.Optional;
 
 /** Adaptador de MongoDB para el puerto RepuestoRepositorio. */
+/**
+ * Para qué sirve: Guarda y consulta repuestos en MongoDB.
+ * <p>PATRÓN Adapter: implementa el puerto RepuestoRepositorio del dominio usando Spring Data y
+ *     Mapeadores.
+ * <p>PATRÓN Repository: es la implementación concreta del repositorio.
+ */
 @Repository
 public class RepuestoRepositorioMongo implements RepuestoRepositorio {
 

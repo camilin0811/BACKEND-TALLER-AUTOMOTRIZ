@@ -7,6 +7,10 @@ import io.swagger.v3.oas.models.info.License;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Para qué sirve: Describe la API para la documentación de Swagger UI.
+ * <p>PATRÓN Factory (@Bean de Spring): el método @Bean fabrica la descripción OpenAPI.
+ */
 @Configuration
 public class ConfiguracionOpenApi {
 

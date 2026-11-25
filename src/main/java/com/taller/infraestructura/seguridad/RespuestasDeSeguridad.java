@@ -19,6 +19,10 @@ import java.util.Map;
  *
  * <p>Sin esto, Spring Security devuelve una pagina HTML o un cuerpo vacio y el
  * frontend no puede distinguir "no inicio sesión" de "no tiene permiso".
+ *
+ * <p>Para qué sirve: Responde 401 y 403 con la misma forma JSON que el resto de errores de la API.
+ * <p>PATRÓN Strategy: Spring Security delega en este objeto cómo responder cuando falta la sesión o el
+ *     permiso.
  */
 @Component
 public class RespuestasDeSeguridad implements AuthenticationEntryPoint, AccessDeniedHandler {

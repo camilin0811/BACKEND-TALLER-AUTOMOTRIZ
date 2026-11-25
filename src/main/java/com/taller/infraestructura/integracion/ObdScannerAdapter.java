@@ -15,6 +15,9 @@ import java.util.Map;
  *
  * <p>El escaner habla Bluetooth y no tiene pila de red: el gateway hace de
  * puente. Cambiar de modelo de escaner no toca el backend.
+ *
+ * <p>Para qué sirve: Lee el escáner OBD-II a través del gateway IoT del taller.
+ * <p>PATRÓN Adapter: adapta la API del gateway IoT al puerto EscanerDiagnostico.
  */
 @Component
 public class ObdScannerAdapter implements EscanerDiagnostico {

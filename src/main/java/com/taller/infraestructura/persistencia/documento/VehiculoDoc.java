@@ -8,6 +8,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
  * Un solo documento para automoviles y motocicletas, con el campo {@code tipo}
  * como discriminador (ADR-004). La consulta dominante es por placa y no sabe
  * de antemano el tipo, asi que separarlos obligaria a consultar dos veces.
+ *
+ * <p>Para qué sirve: Documento de MongoDB de la colección "vehiculos".
+ * <p>PATRÓN Modelo de persistencia separado del dominio: refleja cómo se guarda el dato (con
+ *     anotaciones de Spring Data); Mapeadores lo convierte al objeto del dominio.
  */
 @Document("vehiculos")
 public class VehiculoDoc {

@@ -9,6 +9,12 @@ import java.util.List;
 import java.util.Optional;
 
 /** Adaptador de MongoDB para el puerto ClienteRepositorio. */
+/**
+ * Para qué sirve: Guarda y consulta clientes en MongoDB.
+ * <p>PATRÓN Adapter: implementa el puerto ClienteRepositorio del dominio usando Spring Data y
+ *     Mapeadores.
+ * <p>PATRÓN Repository: es la implementación concreta del repositorio.
+ */
 @Repository
 public class ClienteRepositorioMongo implements ClienteRepositorio {
 

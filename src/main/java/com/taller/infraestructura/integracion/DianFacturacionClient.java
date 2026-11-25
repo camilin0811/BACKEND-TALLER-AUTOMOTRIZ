@@ -20,8 +20,16 @@ import java.util.Map;
  * <p>Reintenta con espera creciente. Si agota los intentos devuelve un rechazo
  * tecnico y la factura queda PENDIENTE_ENVIO para reintentar despues: una
  * caida del proveedor no puede perder la factura.
+ *
+ * <p>Para qué sirve: Envía las facturas al proveedor tecnológico autorizado por la DIAN (se activa con
+ * taller.facturacion.simulada=false).
+ * <p>PATRÓN Adapter: adapta la API HTTP del proveedor al puerto FacturacionElectronica.
+ * <p>PATRÓN Strategy: es una de las dos estrategias de facturación; la otra es FacturacionSimulada.
+ * <p>PATRÓN Retry (reintento con espera creciente): si el proveedor falla, reintenta con espera
+ *     creciente; al agotar los intentos la factura queda pendiente de envío.
  */
 @Component
+// PATRÓN Strategy: esta implementación se elige por configuración (taller.facturacion.simulada=false).
 @ConditionalOnProperty(name = "taller.facturacion.simulada", havingValue = "false")
 public class DianFacturacionClient implements FacturacionElectronica {
 
@@ -43,6 +51,7 @@ public class DianFacturacionClient implements FacturacionElectronica {
     @Override
     public Resultado enviar(Factura factura) {
         RuntimeException ultimoError = null;
+        // PATRÓN Retry: se reintenta el envío con espera creciente antes de rendirse.
         for (int intento = 1; intento <= reintentos; intento++) {
             try {
                 Map<?, ?> respuesta = cliente.post()

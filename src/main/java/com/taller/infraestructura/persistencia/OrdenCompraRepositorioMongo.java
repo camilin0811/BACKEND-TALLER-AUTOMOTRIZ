@@ -9,6 +9,12 @@ import java.util.List;
 import java.util.Optional;
 
 /** Adaptador de MongoDB para el puerto OrdenCompraRepositorio. */
+/**
+ * Para qué sirve: Guarda y consulta órdenes de compra en MongoDB.
+ * <p>PATRÓN Adapter: implementa el puerto OrdenCompraRepositorio del dominio usando Spring Data y
+ *     Mapeadores.
+ * <p>PATRÓN Repository: es la implementación concreta del repositorio.
+ */
 @Repository
 public class OrdenCompraRepositorioMongo implements OrdenCompraRepositorio {
 

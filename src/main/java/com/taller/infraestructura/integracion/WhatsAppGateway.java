@@ -19,6 +19,11 @@ import java.util.Map;
  *
  * <p>Es el adaptador que sostiene la decision de negocio mas importante del
  * sistema: el cliente aprueba la cotizacion respondiendo un mensaje (ADR-006).
+ *
+ * <p>Para qué sirve: Envía mensajes al cliente por WhatsApp y verifica la firma de los webhooks
+ * entrantes.
+ * <p>PATRÓN Gateway: punto único de acceso al servicio externo de mensajería.
+ * <p>PATRÓN Adapter: implementa el puerto NotificadorCliente.
  */
 @Component
 public class WhatsAppGateway implements NotificadorCliente {

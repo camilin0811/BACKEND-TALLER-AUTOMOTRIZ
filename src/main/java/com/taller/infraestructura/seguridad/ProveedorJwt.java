@@ -23,6 +23,9 @@ import java.util.Optional;
  * <p>El secreto viene de configuracion y en produccion debe inyectarse por
  * variable de entorno. Si no se define, la aplicacion no arranca: un secreto
  * por defecto en un sistema productivo equivale a no tener firma.
+ *
+ * <p>Para qué sirve: Emite y verifica tokens JWT firmados con HMAC-SHA256.
+ * <p>PATRÓN Adapter: adapta la librería JWT al puerto EmisorTokens.
  */
 @Component
 public class ProveedorJwt implements EmisorTokens {

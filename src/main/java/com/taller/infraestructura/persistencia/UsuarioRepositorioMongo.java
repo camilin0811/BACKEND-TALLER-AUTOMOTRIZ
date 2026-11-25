@@ -10,6 +10,12 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Para qué sirve: Guarda y consulta usuarios en MongoDB.
+ * <p>PATRÓN Adapter: implementa el puerto UsuarioRepositorio del dominio usando Spring Data y
+ *     Mapeadores.
+ * <p>PATRÓN Repository: es la implementación concreta del repositorio.
+ */
 @Repository
 public class UsuarioRepositorioMongo implements UsuarioRepositorio {
 

@@ -8,6 +8,11 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Para qué sirve: Documento de MongoDB de la colección "ordenes_compra".
+ * <p>PATRÓN Modelo de persistencia separado del dominio: refleja cómo se guarda el dato (con
+ *     anotaciones de Spring Data); Mapeadores lo convierte al objeto del dominio.
+ */
 @Document("ordenes_compra")
 public class OrdenCompraDoc {
 

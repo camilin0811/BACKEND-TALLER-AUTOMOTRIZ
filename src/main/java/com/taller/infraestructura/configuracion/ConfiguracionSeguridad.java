@@ -17,6 +17,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * <p>Traduce a reglas HTTP la tabla documentada en la wiki. Las rutas publicas
  * se declaran una por una: dejar un comodin abierto es la forma mas comun de
  * exponer un endpoint sin darse cuenta.
+ *
+ * <p>Para qué sirve: Matriz de permisos HTTP: qué rutas son públicas, qué roles acceden a cada una y
+ * dónde va el filtro JWT.
+ * <p>PATRÓN Builder: HttpSecurity es un constructor fluido: se encadenan las reglas y build() arma la
+ *     cadena de seguridad.
+ * <p>PATRÓN Chain of Responsibility: registra FiltroJwt en la cadena de filtros por la que pasa cada
+ *     petición.
+ * <p>PATRÓN RBAC (control de acceso por roles): aplica por ruta los roles definidos en el dominio
+ *     (Rol).
  */
 @Configuration
 @EnableWebSecurity
@@ -35,6 +44,7 @@ public class ConfiguracionSeguridad {
     }
 
     @Bean
+    // PATRÓN Builder + Chain of Responsibility: HttpSecurity arma, con llamadas encadenadas, la cadena de filtros.
     public SecurityFilterChain cadena(HttpSecurity http) throws Exception {
         http
             // Sin sesiones ni formularios: la API es sin estado y el token
@@ -81,6 +91,7 @@ public class ConfiguracionSeguridad {
                         .hasAnyRole(REC, ADM)
 
                     .anyRequest().authenticated())
+            // PATRÓN Chain of Responsibility: FiltroJwt se inserta en la cadena antes del filtro de usuario y clave.
             .addFilterBefore(filtroJwt, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

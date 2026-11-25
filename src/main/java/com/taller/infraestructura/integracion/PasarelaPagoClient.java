@@ -10,6 +10,10 @@ import org.springframework.web.client.RestClient;
 import java.math.BigDecimal;
 import java.util.Map;
 
+/**
+ * Para qué sirve: Cliente de la pasarela de pagos en línea.
+ * <p>PATRÓN Adapter: implementa el puerto PasarelaPagos.
+ */
 @Component
 public class PasarelaPagoClient implements PasarelaPagos {
 

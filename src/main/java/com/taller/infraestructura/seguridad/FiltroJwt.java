@@ -17,6 +17,11 @@ import java.io.IOException;
 import java.util.List;
 
 /** Traduce el token del encabezado Authorization en una autenticacion de Spring. */
+/**
+ * Para qué sirve: Lee el token del encabezado Authorization y, si es válido, autentica la petición.
+ * <p>PATRÓN Chain of Responsibility: eslabón de la cadena de filtros: hace su parte y llama a
+ *     cadena.doFilter() para pasar la petición al siguiente.
+ */
 @Component
 public class FiltroJwt extends OncePerRequestFilter {
 
@@ -44,6 +49,7 @@ public class FiltroJwt extends OncePerRequestFilter {
             });
         }
 
+        // PATRÓN Chain of Responsibility: pasa la petición al siguiente filtro de la cadena.
         cadena.doFilter(peticion, respuesta);
     }
 }

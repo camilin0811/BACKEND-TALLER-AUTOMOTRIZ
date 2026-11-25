@@ -6,6 +6,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 
+/**
+ * Para qué sirve: Documento de MongoDB de la colección "usuarios".
+ * <p>PATRÓN Modelo de persistencia separado del dominio: refleja cómo se guarda el dato (con
+ *     anotaciones de Spring Data); Mapeadores lo convierte al objeto del dominio.
+ */
 @Document("usuarios")
 public class UsuarioDoc {
 

@@ -5,6 +5,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+/**
+ * Para qué sirve: Codifica y verifica claves con BCrypt.
+ * <p>PATRÓN Adapter: adapta el BCryptPasswordEncoder de Spring al puerto CodificadorClaves.
+ */
 @Component
 public class CodificadorBCrypt implements CodificadorClaves {
 

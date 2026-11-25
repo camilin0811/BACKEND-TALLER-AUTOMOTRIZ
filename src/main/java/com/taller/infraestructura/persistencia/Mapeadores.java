@@ -11,6 +11,10 @@ import java.util.List;
  *
  * <p>Existe para que el dominio no lleve una sola anotacion de Spring Data.
  * Es el precio de la regla de dependencias y se paga aqui, en un solo lugar.
+ *
+ * <p>Para qué sirve: Traduce entre documentos de MongoDB y objetos del dominio.
+ * <p>PATRÓN Data Mapper / Assembler: Data Mapper: gracias a esta clase el dominio no lleva ninguna
+ *     anotación de Spring Data.
  */
 public final class Mapeadores {
 

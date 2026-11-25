@@ -14,6 +14,10 @@ import org.springframework.stereotype.Component;
  *
  * <p>findAndModify con upsert garantiza que dos recepciones simultaneas no
  * obtengan el mismo numero de orden.
+ *
+ * <p>Para qué sirve: Genera consecutivos con un contador atómico en MongoDB (dos recepciones
+ * simultáneas no obtienen el mismo número).
+ * <p>PATRÓN Adapter: implementa el puerto GeneradorConsecutivos con findAndModify de MongoDB.
  */
 @Component
 public class GeneradorConsecutivosMongo implements GeneradorConsecutivos {

@@ -9,6 +9,12 @@ import java.util.List;
 import java.util.Optional;
 
 /** Adaptador de MongoDB para el puerto MovimientoInventarioRepositorio. */
+/**
+ * Para qué sirve: Guarda y consulta movimientos de inventario en MongoDB.
+ * <p>PATRÓN Adapter: implementa el puerto MovimientoInventarioRepositorio del dominio usando Spring
+ *     Data y Mapeadores.
+ * <p>PATRÓN Repository: es la implementación concreta del repositorio.
+ */
 @Repository
 public class MovimientoInventarioRepositorioMongo implements MovimientoInventarioRepositorio {
 

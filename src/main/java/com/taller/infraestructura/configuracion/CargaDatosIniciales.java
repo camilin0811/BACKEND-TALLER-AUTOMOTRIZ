@@ -38,6 +38,10 @@ import java.math.BigDecimal;
  * telefono corresponde a una persona real.
  *
  * <pre>mvn spring-boot:run -Dspring-boot.run.profiles=seed</pre>
+ *
+ * <p>Para qué sirve: Carga datos ficticios de demostración (usuarios, catálogo, cliente y vehículos)
+ * cuando se arranca con el perfil seed.
+ * <p>Patrones: ninguno de diseño específico; es una pieza sencilla de su capa.
  */
 @Component
 @Profile("seed")

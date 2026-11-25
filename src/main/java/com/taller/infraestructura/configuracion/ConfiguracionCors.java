@@ -15,6 +15,9 @@ import java.util.List;
  * desarrollo no es el de produccion y no tiene sentido recompilar para
  * cambiarlo. No se usa comodin porque abrir la API a cualquier origen es
  * gratuito de escribir y caro de arreglar.
+ *
+ * <p>Para qué sirve: Define qué orígenes (el frontend) pueden llamar a la API desde el navegador.
+ * <p>Patrones: ninguno de diseño específico; es una pieza sencilla de su capa.
  */
 @Configuration
 public class ConfiguracionCors implements WebMvcConfigurer {

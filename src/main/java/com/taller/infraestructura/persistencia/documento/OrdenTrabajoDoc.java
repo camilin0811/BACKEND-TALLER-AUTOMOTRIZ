@@ -13,6 +13,11 @@ import java.util.List;
 import java.util.Map;
 
 /** Agregado de la orden con servicios, repuestos, diagnosticos e historial incrustados. */
+/**
+ * Para qué sirve: Documento de MongoDB de la colección "ordenes".
+ * <p>PATRÓN Modelo de persistencia separado del dominio: refleja cómo se guarda el dato (con
+ *     anotaciones de Spring Data); Mapeadores lo convierte al objeto del dominio.
+ */
 @Document("ordenes")
 @CompoundIndex(name = "estado_fecha", def = "{'estado': 1, 'fechaIngreso': -1}")
 @CompoundIndex(name = "mecanico_estado", def = "{'mecanico.id': 1, 'estado': 1}")

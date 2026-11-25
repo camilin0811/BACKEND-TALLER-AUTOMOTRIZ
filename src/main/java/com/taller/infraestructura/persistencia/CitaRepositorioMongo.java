@@ -9,6 +9,11 @@ import java.util.List;
 import java.util.Optional;
 
 /** Adaptador de MongoDB para el puerto CitaRepositorio. */
+/**
+ * Para qué sirve: Guarda y consulta citas en MongoDB.
+ * <p>PATRÓN Adapter: implementa el puerto CitaRepositorio del dominio usando Spring Data y Mapeadores.
+ * <p>PATRÓN Repository: es la implementación concreta del repositorio.
+ */
 @Repository
 public class CitaRepositorioMongo implements CitaRepositorio {
 

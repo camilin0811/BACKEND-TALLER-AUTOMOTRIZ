@@ -29,8 +29,15 @@ import java.util.HexFormat;
  * {@code taller.facturacion.simulada=false} y las credenciales; entonces se
  * activa {@link DianFacturacionClient} en su lugar. El dominio no se entera:
  * los dos implementan el mismo puerto.
+ *
+ * <p>Para qué sirve: Facturación electrónica simulada para desarrollo y demostración: genera un CUFE
+ * con la forma del real, sin validez fiscal.
+ * <p>PATRÓN Strategy: estrategia de facturación activa por defecto; se cambia por
+ *     DianFacturacionClient sin tocar el dominio.
+ * <p>PATRÓN Adapter: implementa el puerto FacturacionElectronica.
  */
 @Component
+// PATRÓN Strategy: implementación por defecto de FacturacionElectronica, elegida por configuración.
 @ConditionalOnProperty(name = "taller.facturacion.simulada", havingValue = "true", matchIfMissing = true)
 public class FacturacionSimulada implements FacturacionElectronica {
 
