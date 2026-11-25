@@ -4,6 +4,11 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
+/**
+ * Para qué sirve: Vista completa de una orden para la pantalla de detalle, con su historial.
+ * <p>PATRÓN DTO (Data Transfer Object): record inmutable que define el contrato JSON de la API (con
+ *     validaciones de Bean Validation) y separa la API del modelo de dominio.
+ */
 public record OrdenDetalleDTO(String id,
                               String numero,
                               String estado,

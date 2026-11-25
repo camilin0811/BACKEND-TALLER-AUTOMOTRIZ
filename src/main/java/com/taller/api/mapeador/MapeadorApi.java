@@ -9,6 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Traduccion entre el dominio y los DTO expuestos por la API. */
+/**
+ * Para qué sirve: Convierte objetos del dominio en los DTO que devuelve la API.
+ * <p>PATRÓN Data Mapper / Assembler: concentra en un solo lugar la traducción dominio → DTO
+ *     (Assembler); los controladores no arman respuestas a mano.
+ */
 public final class MapeadorApi {
 
     private MapeadorApi() {

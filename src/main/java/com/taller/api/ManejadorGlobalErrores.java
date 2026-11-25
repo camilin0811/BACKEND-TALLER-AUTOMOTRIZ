@@ -25,12 +25,18 @@ import java.util.UUID;
  *
  * <p>Es el unico lugar donde el dominio se convierte en codigos de estado. Un
  * servicio que devuelve ResponseEntity ya esta acoplado al transporte.
+ *
+ * <p>Para qué sirve: Convierte las excepciones en respuestas HTTP con la forma de ErrorRespuesta (404,
+ * 409, 422, 401, 503...).
+ * <p>PATRÓN Manejador centralizado de errores: @RestControllerAdvice: un único punto traduce cada tipo
+ *     de excepción a su código HTTP y Spring lo aplica a todos los controladores.
  */
 @RestControllerAdvice
 public class ManejadorGlobalErrores {
 
     private static final Logger log = LoggerFactory.getLogger(ManejadorGlobalErrores.class);
 
+    // PATRÓN Manejador centralizado de errores: cada @ExceptionHandler traduce un tipo de excepción a su código HTTP.
     @ExceptionHandler(RecursoNoEncontradoException.class)
     public ResponseEntity<ErrorRespuesta> noEncontrado(RecursoNoEncontradoException e, HttpServletRequest req) {
         return construir(HttpStatus.NOT_FOUND, e.getCodigo(), e.getMessage(), req, null);

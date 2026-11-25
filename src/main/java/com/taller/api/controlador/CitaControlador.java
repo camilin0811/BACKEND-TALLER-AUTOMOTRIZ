@@ -16,6 +16,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Para qué sirve: Agenda de citas: citas del día, disponibilidad, agendar y confirmar o cancelar
+ * (/api/v1/citas).
+ * <p>PATRÓN Controller (MVC): recibe la petición HTTP, valida la entrada y delega en la capa de
+ *     servicio; no contiene reglas de negocio.
+ * <p>PATRÓN DTO (Data Transfer Object): entra y sale por objetos de transferencia (CrearCitaDTO),
+ *     nunca expone las entidades del dominio.
+ */
 @RestController
 @RequestMapping("/api/v1/citas")
 @Tag(name = "Citas")

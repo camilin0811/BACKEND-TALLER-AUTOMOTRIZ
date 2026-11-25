@@ -11,6 +11,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * Para qué sirve: Mecánicos: los asignables, los disponibles y la ficha de uno (/api/v1/mecanicos).
+ * <p>PATRÓN Controller (MVC): recibe la petición HTTP, valida la entrada y delega en la capa de
+ *     servicio; no contiene reglas de negocio.
+ */
 @RestController
 @RequestMapping("/api/v1/mecanicos")
 @Tag(name = "Personal")

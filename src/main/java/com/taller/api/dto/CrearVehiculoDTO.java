@@ -5,6 +5,12 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
+/**
+ * Para qué sirve: Cuerpo para registrar un automóvil o una motocicleta; los campos propios de cada
+ * tipo son opcionales.
+ * <p>PATRÓN DTO (Data Transfer Object): record inmutable que define el contrato JSON de la API (con
+ *     validaciones de Bean Validation) y separa la API del modelo de dominio.
+ */
 public record CrearVehiculoDTO(
         @NotNull(message = "El tipo es obligatorio")
         @Pattern(regexp = "AUTOMOVIL|MOTOCICLETA", message = "El tipo debe ser AUTOMOVIL o MOTOCICLETA")

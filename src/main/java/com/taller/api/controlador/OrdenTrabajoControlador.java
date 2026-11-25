@@ -26,6 +26,15 @@ import java.util.List;
  * <p>Las transiciones no son endpoints con verbo en la URL: se modelan como un
  * subrecurso de estado, para que la URL siga nombrando un recurso y la maquina
  * de estados siga siendo quien valida.
+ *
+ * <p>Para qué sirve: Ciclo de vida de la orden de trabajo: crear, consultar, historial, asignar
+ * mecánico, cambiar estado, diagnósticos, servicios y repuestos (/api/v1/ordenes).
+ * <p>PATRÓN Controller (MVC): recibe la petición HTTP, valida la entrada y delega en la capa de
+ *     servicio; no contiene reglas de negocio.
+ * <p>PATRÓN DTO (Data Transfer Object): entra y sale por objetos de transferencia (CrearOrdenDTO,
+ *     CambiarEstadoDTO, OrdenDetalleDTO, OrdenResumenDTO...), nunca expone las entidades del dominio.
+ * <p>PATRÓN Data Mapper / Assembler: usa MapeadorApi para convertir la orden del dominio en
+ *     OrdenDetalleDTO y OrdenResumenDTO.
  */
 @RestController
 @RequestMapping("/api/v1/ordenes")

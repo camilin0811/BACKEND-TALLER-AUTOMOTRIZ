@@ -13,6 +13,13 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+/**
+ * Para qué sirve: Inicio de sesión, datos del usuario autenticado y cambio de clave (/api/v1/auth).
+ * <p>PATRÓN Controller (MVC): recibe la petición HTTP, valida la entrada y delega en la capa de
+ *     servicio; no contiene reglas de negocio.
+ * <p>PATRÓN DTO (Data Transfer Object): entra y sale por objetos de transferencia (LoginDTO, TokenDTO,
+ *     CambiarClaveDTO), nunca expone las entidades del dominio.
+ */
 @RestController
 @RequestMapping("/api/v1/auth")
 @Tag(name = "Autenticacion")

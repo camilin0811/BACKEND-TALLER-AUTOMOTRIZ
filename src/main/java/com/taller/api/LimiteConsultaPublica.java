@@ -31,6 +31,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * <p>Vive en memoria: con una sola instancia del backend es suficiente. Si
  * algun dia hay varias, el contador debe pasar a un almacen compartido.
+ *
+ * <p>Para qué sirve: Limita cuántas consultas por minuto puede hacer cada IP al portal público.
+ * <p>PATRÓN Chain of Responsibility: es un eslabón de la cadena de filtros de Servlet: responde 429 y
+ *     corta la cadena, o pasa la petición al siguiente filtro.
+ * <p>PATRÓN Rate limiting (ventana fija): cuenta las peticiones de cada IP en ventanas fijas de un
+ *     minuto.
  */
 @Component
 public class LimiteConsultaPublica extends OncePerRequestFilter {
@@ -72,6 +78,7 @@ public class LimiteConsultaPublica extends OncePerRequestFilter {
             rechazar(req, res, Math.max(1, (ventana.inicio + VENTANA_MS - ahora + 999) / 1000));
             return;
         }
+        // PATRÓN Chain of Responsibility: dentro del límite, la petición sigue al siguiente filtro.
         cadena.doFilter(req, res);
     }
 

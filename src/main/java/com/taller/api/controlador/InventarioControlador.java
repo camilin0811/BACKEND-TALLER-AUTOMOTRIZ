@@ -16,6 +16,14 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.List;
 
+/**
+ * Para qué sirve: Repuestos, movimientos de inventario y órdenes de compra (/api/v1/repuestos y
+ * /api/v1/ordenes-compra).
+ * <p>PATRÓN Controller (MVC): recibe la petición HTTP, valida la entrada y delega en la capa de
+ *     servicio; no contiene reglas de negocio.
+ * <p>PATRÓN DTO (Data Transfer Object): entra y sale por objetos de transferencia (CrearRepuestoDTO,
+ *     AjustarCantidadCompraDTO, RecepcionCompraDTO), nunca expone las entidades del dominio.
+ */
 @RestController
 @RequestMapping("/api/v1")
 @Tag(name = "Inventario")

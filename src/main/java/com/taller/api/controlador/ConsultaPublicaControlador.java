@@ -31,6 +31,13 @@ import java.util.List;
  * documento no quedan en los registros de acceso ni en el historial. Y esta
  * limitada por IP ({@code LimiteConsultaPublica}) para que nadie pueda
  * adivinar documentos probando por fuerza bruta.
+ *
+ * <p>Para qué sirve: Portal público: el cliente consulta su orden con placa y documento, sin iniciar
+ * sesión (/api/v1/publico).
+ * <p>PATRÓN Controller (MVC): recibe la petición HTTP, valida la entrada y delega en la capa de
+ *     servicio; no contiene reglas de negocio.
+ * <p>PATRÓN DTO (Data Transfer Object): ConsultaPublicaRespuestaDTO expone solo lo que el cliente
+ *     puede ver de su propia orden.
  */
 @RestController
 @RequestMapping("/api/v1/publico")

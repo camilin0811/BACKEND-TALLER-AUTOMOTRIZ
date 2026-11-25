@@ -18,6 +18,13 @@ import java.util.Locale;
  * <p>Este endpoint es el que sostiene la decision de negocio central: el
  * cliente aprueba la cotizacion respondiendo por WhatsApp (ADR-006). No usa
  * JWT; se autentica verificando la firma HMAC del proveedor.
+ *
+ * <p>Para qué sirve: Recibe las respuestas del cliente por WhatsApp (APRUEBO / RECHAZO) y aprueba o
+ * rechaza la cotización.
+ * <p>PATRÓN Controller (MVC): recibe la petición HTTP, valida la entrada y delega en la capa de
+ *     servicio; no contiene reglas de negocio.
+ * <p>PATRÓN Webhook: el proveedor de mensajería llama a esta URL cuando el cliente responde; antes de
+ *     actuar se verifica la firma HMAC del cuerpo.
  */
 @RestController
 @RequestMapping("/api/v1/webhooks")

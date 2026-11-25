@@ -6,6 +6,11 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 /** Registro de un cliente. Mismas reglas que el formulario de nueva orden. */
+/**
+ * Para qué sirve: Cuerpo para registrar un cliente.
+ * <p>PATRÓN DTO (Data Transfer Object): record inmutable que define el contrato JSON de la API (con
+ *     validaciones de Bean Validation) y separa la API del modelo de dominio.
+ */
 public record CrearClienteDTO(
         @NotBlank(message = "El nombre es obligatorio")
         @Size(min = 3, max = 120, message = "El nombre debe tener entre 3 y 120 caracteres")

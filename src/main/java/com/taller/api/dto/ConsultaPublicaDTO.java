@@ -12,6 +12,10 @@ import jakarta.validation.constraints.Pattern;
  *
  * <p>Las reglas son las mismas que valida el formulario del portal. El
  * servidor las repite porque el formulario se puede saltar.
+ *
+ * <p>Para qué sirve: Placa y documento que el cliente escribe en el portal público.
+ * <p>PATRÓN DTO (Data Transfer Object): record inmutable que define el contrato JSON de la API (con
+ *     validaciones de Bean Validation) y separa la API del modelo de dominio.
  */
 public record ConsultaPublicaDTO(
         @NotBlank(message = "La placa es obligatoria")

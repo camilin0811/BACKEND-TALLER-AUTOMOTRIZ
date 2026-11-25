@@ -7,6 +7,11 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 /** Recepcion de un vehiculo: abre una orden de trabajo en estado Recibida. */
+/**
+ * Para qué sirve: Cuerpo para abrir una orden de trabajo al recibir un vehículo.
+ * <p>PATRÓN DTO (Data Transfer Object): record inmutable que define el contrato JSON de la API (con
+ *     validaciones de Bean Validation) y separa la API del modelo de dominio.
+ */
 public record CrearOrdenDTO(
         @NotBlank(message = "La placa es obligatoria")
         @Pattern(regexp = "[A-Za-z0-9]{3,8}", message = "La placa solo admite letras y números (entre 3 y 8)")
