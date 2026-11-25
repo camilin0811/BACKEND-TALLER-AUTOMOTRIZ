@@ -3,6 +3,13 @@ package com.taller.dominio.modelo;
 import com.taller.dominio.excepcion.ReglaNegocioException;
 import java.time.LocalDateTime;
 
+/**
+ * Para qué sirve: Cita agendada de un cliente para su vehículo; pasa de pendiente a confirmada o
+ * atendida.
+ * <p>PATRÓN Entidad (DDD): tiene identidad propia (id) y su estado cambia a lo largo del tiempo.
+ * <p>PATRÓN Método fábrica estático: solicitar() crea el objeto en un estado inicial válido y le da
+ *     nombre a esa forma de crearlo.
+ */
 public class Cita {
 
     private String id;

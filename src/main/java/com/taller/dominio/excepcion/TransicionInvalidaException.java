@@ -9,6 +9,11 @@ import java.util.stream.Collectors;
  *
  * <p>El mensaje enumera las transiciones validas a proposito: un error que solo
  * dice "operación no permitida" obliga a abrir el codigo para entenderlo.
+ *
+ * <p>Para qué sirve: Se intentó un cambio de estado que la máquina de estados no permite.
+ * ManejadorGlobalErrores la responde con 409.
+ * <p>PATRÓN Herencia y polimorfismo: hereda de TallerException; el tipo de la excepción decide el
+ *     código HTTP, sin if en los controladores.
  */
 public class TransicionInvalidaException extends TallerException {
 

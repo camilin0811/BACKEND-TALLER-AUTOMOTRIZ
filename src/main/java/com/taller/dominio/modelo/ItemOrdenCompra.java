@@ -2,6 +2,10 @@ package com.taller.dominio.modelo;
 
 import java.math.BigDecimal;
 
+/**
+ * Para qué sirve: Línea de una orden de compra: el repuesto y sus cantidades.
+ * <p>PATRÓN Agregado y raíz de agregado (DDD): pertenece al agregado OrdenCompra.
+ */
 public class ItemOrdenCompra {
 
     private final String codigoRepuesto;

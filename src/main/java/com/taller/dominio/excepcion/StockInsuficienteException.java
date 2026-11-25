@@ -1,5 +1,11 @@
 package com.taller.dominio.excepcion;
 
+/**
+ * Para qué sirve: No hay unidades suficientes del repuesto. ManejadorGlobalErrores la responde con
+ * 409.
+ * <p>PATRÓN Herencia y polimorfismo: hereda de TallerException; el tipo de la excepción decide el
+ *     código HTTP, sin if en los controladores.
+ */
 public class StockInsuficienteException extends TallerException {
 
     private final String codigoRepuesto;

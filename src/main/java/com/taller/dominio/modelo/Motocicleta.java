@@ -1,5 +1,9 @@
 package com.taller.dominio.modelo;
 
+/**
+ * Para qué sirve: Vehículo de dos ruedas: tipo de motor, tiempos, categoría y parrilla.
+ * <p>PATRÓN Herencia y polimorfismo: especializa Vehiculo e implementa getTipo().
+ */
 public class Motocicleta extends Vehiculo {
 
     private final String tipoMotor;

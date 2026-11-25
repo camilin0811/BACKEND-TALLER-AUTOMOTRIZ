@@ -1,5 +1,9 @@
 package com.taller.dominio.modelo;
 
+/**
+ * Para qué sirve: Vehículo de cuatro ruedas: puertas, combustible, pasajeros y transmisión.
+ * <p>PATRÓN Herencia y polimorfismo: especializa Vehiculo e implementa getTipo().
+ */
 public class Automovil extends Vehiculo {
 
     private final int numeroPuertas;

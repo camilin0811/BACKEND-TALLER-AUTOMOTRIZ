@@ -8,6 +8,10 @@ import java.util.Set;
  * <p>Los permisos viven en el dominio, no en la configuracion de Spring, para
  * que se puedan probar sin levantar el contexto y para que la matriz
  * documentada en la wiki tenga un unico lugar donde comprobarse.
+ *
+ * <p>Para qué sirve: Roles del sistema y los permisos de cada uno.
+ * <p>PATRÓN RBAC (control de acceso por roles): cada rol declara su conjunto de permisos;
+ *     ConfiguracionSeguridad traduce esa matriz a reglas HTTP.
  */
 public enum Rol {
 

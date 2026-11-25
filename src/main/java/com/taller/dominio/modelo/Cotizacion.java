@@ -4,6 +4,14 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 
+/**
+ * Para qué sirve: Presupuesto que se envía al cliente: número, total, vigencia y si fue aprobado o
+ * rechazado.
+ * <p>PATRÓN Agregado y raíz de agregado (DDD): forma parte del agregado OrdenTrabajo: solo se modifica
+ *     a través de la orden.
+ * <p>PATRÓN Método fábrica estático: emitir() crea el objeto en un estado inicial válido y le da
+ *     nombre a esa forma de crearlo.
+ */
 public class Cotizacion {
 
     private final String numero;

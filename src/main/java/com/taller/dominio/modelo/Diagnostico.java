@@ -4,6 +4,13 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Para qué sirve: Resultado de revisar el vehículo: códigos de falla, lecturas y observaciones, del
+ * escáner o manual.
+ * <p>PATRÓN Objeto de valor (DDD): record inmutable que se identifica por sus valores, no por un id.
+ * <p>PATRÓN Método fábrica estático: desdeEscaner() y manual() crea el objeto en un estado inicial
+ *     válido y le da nombre a esa forma de crearlo.
+ */
 public record Diagnostico(Instant fecha,
                           OrigenDiagnostico origen,
                           List<String> codigosFalla,

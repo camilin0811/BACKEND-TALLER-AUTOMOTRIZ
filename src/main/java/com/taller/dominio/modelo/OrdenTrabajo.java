@@ -28,6 +28,17 @@ import java.util.List;
  * <p>Los cambios relevantes para el negocio quedan registrados como eventos de
  * dominio en {@link #eventosPendientes()}. El servicio de aplicacion los publica
  * tras persistir y luego llama a {@link #limpiarEventos()}.
+ *
+ * <p>Para qué sirve: Orden de trabajo: el ciclo completo del trabajo sobre un vehículo (diagnóstico,
+ * cotización, reparación, cierre y entrega).
+ * <p>PATRÓN Agregado y raíz de agregado (DDD): raíz del agregado central: diagnósticos, cotización,
+ *     servicios, repuestos e historial solo se modifican a través de sus métodos.
+ * <p>PATRÓN Máquina de estados (variante de State): todo cambio de estado pasa por cambiarEstado(),
+ *     que consulta la máquina de estados de EstadoOrden.
+ * <p>PATRÓN Eventos de dominio (DDD): cada operación relevante agrega un evento a eventosPendientes();
+ *     el servicio los publica después de guardar.
+ * <p>PATRÓN Método fábrica estático: recibir() crea el objeto en un estado inicial válido y le da
+ *     nombre a esa forma de crearlo.
  */
 public class OrdenTrabajo {
 
@@ -56,6 +67,7 @@ public class OrdenTrabajo {
     /** Lo que el cliente reporta al dejar el vehiculo: motivo o sintomas. */
     private String motivoIngreso;
 
+    // PATRÓN Eventos de dominio: la orden acumula aquí los hechos ocurridos; el servicio los publica al guardar.
     private final transient List<EventoDominio> eventos = new ArrayList<>();
 
     public OrdenTrabajo(String id, String numero, EstadoOrden estado, Instant fechaIngreso, Instant fechaEntrega,
@@ -244,6 +256,7 @@ public class OrdenTrabajo {
         eventos.add(new VehiculoEntregado(id, vehiculo.placa(), kilometrajeIngreso, vehiculo.tipo()));
     }
 
+    // PATRÓN Máquina de estados: único punto por donde la orden cambia de estado; valida con EstadoOrden.
     private void cambiarEstado(EstadoOrden destino, String usuario) {
         if (!estado.permiteTransicionA(destino)) {
             throw new TransicionInvalidaException(estado, destino);
@@ -280,6 +293,7 @@ public class OrdenTrabajo {
 
     // ----------------------------------------------------------------- eventos
 
+    // PATRÓN Eventos de dominio: entrega los eventos acumulados al servicio de aplicación.
     public List<EventoDominio> eventosPendientes() {
         return Collections.unmodifiableList(eventos);
     }

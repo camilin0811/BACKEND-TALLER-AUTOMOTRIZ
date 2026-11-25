@@ -8,6 +8,10 @@ import java.util.Objects;
  *
  * <p>La cilindrada vive aqui porque aplica tanto a automoviles como a
  * motocicletas. Las subclases solo anaden lo que de verdad las distingue.
+ *
+ * <p>Para qué sirve: Base de los vehículos: placa, marca, línea, año, kilometraje y cilindrada.
+ * <p>PATRÓN Herencia y polimorfismo: clase abstracta con el método abstracto getTipo(): Automovil y
+ *     Motocicleta la especializan.
  */
 public abstract class Vehiculo {
 

@@ -3,6 +3,10 @@ package com.taller.dominio.modelo;
 import java.util.Objects;
 
 /** Base de los actores humanos del sistema. */
+/**
+ * Para qué sirve: Base de las personas del sistema: nombre, documento y datos de contacto.
+ * <p>PATRÓN Herencia y polimorfismo: clase abstracta: Cliente y Empleado la especializan.
+ */
 public abstract class Persona {
 
     private String id;

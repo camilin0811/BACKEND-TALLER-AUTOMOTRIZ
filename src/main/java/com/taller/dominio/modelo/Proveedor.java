@@ -1,5 +1,9 @@
 package com.taller.dominio.modelo;
 
+/**
+ * Para qué sirve: Proveedor de repuestos: NIT, nombre y contacto.
+ * <p>PATRÓN Entidad (DDD): tiene identidad propia (id) y su estado cambia a lo largo del tiempo.
+ */
 public class Proveedor {
 
     private String id;

@@ -4,6 +4,11 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 /** Reglas de redondeo del dinero, en un solo lugar. */
+/**
+ * Para qué sirve: Reglas de redondeo y operaciones con dinero en un solo lugar (2 decimales,
+ * redondeo HALF_UP).
+ * <p>Patrones: ninguno de diseño específico; es una pieza sencilla de su capa.
+ */
 public final class Montos {
 
     public static final int ESCALA = 2;

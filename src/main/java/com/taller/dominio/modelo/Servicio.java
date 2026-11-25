@@ -3,6 +3,11 @@ package com.taller.dominio.modelo;
 import java.math.BigDecimal;
 
 /** Item del catalogo de mano de obra. */
+/**
+ * Para qué sirve: Servicio del catálogo de mano de obra: código, descripción, precio y horas
+ * estimadas.
+ * <p>PATRÓN Entidad (DDD): tiene identidad propia (id) y su estado cambia a lo largo del tiempo.
+ */
 public class Servicio {
 
     private String id;

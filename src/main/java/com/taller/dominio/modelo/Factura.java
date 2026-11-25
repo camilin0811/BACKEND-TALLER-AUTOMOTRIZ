@@ -13,6 +13,13 @@ import java.util.List;
  * <p>Sin CUFE no tiene efecto legal, asi que el codigo solo se puebla cuando la
  * DIAN responde validando. Una factura validada no se modifica: se anula
  * emitiendo una nota de credito.
+ *
+ * <p>Para qué sirve: Factura electrónica de la orden: totales, estado ante la DIAN (CUFE) y pagos
+ * recibidos.
+ * <p>PATRÓN Agregado y raíz de agregado (DDD): raíz de agregado: los pagos solo se registran a través
+ *     de la factura, que protege sus reglas (por ejemplo, no se modifica una vez validada).
+ * <p>PATRÓN Método fábrica estático: emitirPara() crea el objeto en un estado inicial válido y le da
+ *     nombre a esa forma de crearlo.
  */
 public class Factura {
 

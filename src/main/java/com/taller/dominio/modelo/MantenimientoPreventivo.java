@@ -2,6 +2,12 @@ package com.taller.dominio.modelo;
 
 import java.time.LocalDate;
 
+/**
+ * Para qué sirve: Próximo mantenimiento programado de un vehículo, por kilometraje o por fecha.
+ * <p>PATRÓN Entidad (DDD): tiene identidad propia (id) y su estado cambia a lo largo del tiempo.
+ * <p>PATRÓN Método fábrica estático: programar() crea el objeto en un estado inicial válido y le da
+ *     nombre a esa forma de crearlo.
+ */
 public class MantenimientoPreventivo {
 
     private String id;

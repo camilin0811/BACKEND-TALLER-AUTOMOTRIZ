@@ -3,6 +3,12 @@ package com.taller.dominio.modelo;
 import java.time.Instant;
 
 /** Trazabilidad de cada entrada y salida. El stock es la suma de estos. */
+/**
+ * Para qué sirve: Entrada o salida de un repuesto; la suma de los movimientos explica el stock.
+ * <p>PATRÓN Entidad (DDD): tiene identidad propia (id) y su estado cambia a lo largo del tiempo.
+ * <p>PATRÓN Método fábrica estático: entrada() y salida() crea el objeto en un estado inicial válido y
+ *     le da nombre a esa forma de crearlo.
+ */
 public class MovimientoInventario {
 
     private String id;

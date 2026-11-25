@@ -1,5 +1,11 @@
 package com.taller.dominio.evento;
 
+/**
+ * Para qué sirve: Terminó la reparación. Lo emite OrdenTrabajo; lo escuchan M1, M2 (aviso al
+ * cliente) y M4 (emite la factura).
+ * <p>PATRÓN Eventos de dominio (DDD): hecho inmutable del negocio; los manejadores que lo escuchan
+ *     están indicados arriba.
+ */
 public class OrdenCerrada extends EventoDominio {
 
     private final String idOrden;

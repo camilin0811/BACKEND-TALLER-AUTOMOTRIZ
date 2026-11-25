@@ -8,6 +8,12 @@ import java.util.UUID;
  *
  * <p>Los servicios de negocio publican eventos; los manejadores reaccionan.
  * Ningun servicio conoce a sus manejadores (ADR-002).
+ *
+ * <p>Para qué sirve: Base de todos los eventos de dominio: identificador único y fecha en que ocurrió.
+ * <p>PATRÓN Eventos de dominio (DDD): cada evento es un hecho inmutable, nombrado en pasado
+ *     (OrdenCerrada, CotizacionAprobada...).
+ * <p>PATRÓN Observer (publicar/suscribir): es el mensaje que el emisor (PublicadorEventos) entrega a
+ *     los observadores (subclases de ManejadorEventos).
  */
 public abstract class EventoDominio {
 

@@ -11,6 +11,11 @@ import java.util.Objects;
  * <p>La clave **nunca** se guarda en claro: la entidad solo conoce el hash y
  * no tiene forma de devolver el original. Quien la construye debe pasar ya el
  * valor codificado.
+ *
+ * <p>Para qué sirve: Credenciales de acceso: usuario, hash de la clave y rol.
+ * <p>PATRÓN Entidad (DDD): tiene identidad propia (id) y su estado cambia a lo largo del tiempo.
+ * <p>PATRÓN Método fábrica estático: nuevo() crea el objeto en un estado inicial válido y le da nombre
+ *     a esa forma de crearlo.
  */
 public class Usuario {
 

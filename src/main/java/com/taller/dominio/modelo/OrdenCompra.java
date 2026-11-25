@@ -7,6 +7,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Para qué sirve: Pedido de repuestos a un proveedor: nace como borrador de reposición, se envía y
+ * se recibe.
+ * <p>PATRÓN Agregado y raíz de agregado (DDD): raíz de agregado: sus ítems solo cambian a través de la
+ *     orden de compra.
+ * <p>PATRÓN Método fábrica estático: borradorPorReposicion() crea el objeto en un estado inicial
+ *     válido y le da nombre a esa forma de crearlo.
+ */
 public class OrdenCompra {
 
     private String id;

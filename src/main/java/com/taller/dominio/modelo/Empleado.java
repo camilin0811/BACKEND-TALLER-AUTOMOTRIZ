@@ -9,6 +9,9 @@ import java.time.LocalDate;
  * <p>Los roles se modelan como subclases (ADR-010). Es una simplificacion
  * valida para una plantilla estable, pero impide que un empleado cumpla dos
  * funciones; queda registrado como deuda de diseno en la wiki.
+ *
+ * <p>Para qué sirve: Base de los empleados del taller (mecánico y recepcionista).
+ * <p>PATRÓN Herencia y polimorfismo: clase abstracta: Mecanico y Recepcionista la especializan.
  */
 public abstract class Empleado extends Persona {
 

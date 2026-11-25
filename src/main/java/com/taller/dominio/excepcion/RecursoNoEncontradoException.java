@@ -1,5 +1,10 @@
 package com.taller.dominio.excepcion;
 
+/**
+ * Para qué sirve: El recurso pedido no existe. ManejadorGlobalErrores la responde con 404.
+ * <p>PATRÓN Herencia y polimorfismo: hereda de TallerException; el tipo de la excepción decide el
+ *     código HTTP, sin if en los controladores.
+ */
 public class RecursoNoEncontradoException extends TallerException {
 
     public RecursoNoEncontradoException(String recurso, String identificador) {

@@ -1,5 +1,11 @@
 package com.taller.dominio.evento;
 
+/**
+ * Para qué sirve: Se emitió la cotización. Lo emite OrdenTrabajo; lo escuchan M1 y M2 (envía la
+ * cotización por WhatsApp).
+ * <p>PATRÓN Eventos de dominio (DDD): hecho inmutable del negocio; los manejadores que lo escuchan
+ *     están indicados arriba.
+ */
 public class CotizacionEmitida extends EventoDominio {
 
     private final String idOrden;

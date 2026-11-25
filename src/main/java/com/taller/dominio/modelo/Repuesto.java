@@ -12,6 +12,12 @@ import java.util.List;
  * <p>El stock se guarda como valor calculado aunque sea derivable de los
  * movimientos: la pregunta "hay stock?" ocurre en cada consumo y recorrer
  * todos los movimientos cada vez no escala.
+ *
+ * <p>Para qué sirve: Repuesto del almacén: precio, stock, stock mínimo y proveedores.
+ * <p>PATRÓN Agregado y raíz de agregado (DDD): raíz de agregado: el stock solo cambia por sus métodos,
+ *     que validan que no quede negativo.
+ * <p>PATRÓN Método fábrica estático: nuevo() crea el objeto en un estado inicial válido y le da nombre
+ *     a esa forma de crearlo.
  */
 public class Repuesto {
 

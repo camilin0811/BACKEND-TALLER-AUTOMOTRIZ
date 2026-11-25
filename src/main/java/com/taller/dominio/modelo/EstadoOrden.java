@@ -14,6 +14,12 @@ import java.util.Set;
  * imposible llegar a un estado invalido por mucho que cambie el codigo de arriba.
  *
  * <p>Ver ADR-009 en la wiki.
+ *
+ * <p>Para qué sirve: Estados de la orden de trabajo y las transiciones permitidas entre ellos.
+ * <p>PATRÓN Máquina de estados (variante de State): la tabla TRANSICIONES declara a qué estados se
+ *     puede pasar desde cada uno. OrdenTrabajo consulta permiteTransicionA() antes de cambiar, así que
+ *     es imposible llegar a un estado inválido. Es una máquina de estados por tabla (no una clase por
+ *     estado como en el State clásico).
  */
 public enum EstadoOrden {
 
@@ -42,6 +48,7 @@ public enum EstadoOrden {
         return etiqueta;
     }
 
+    // PATRÓN Máquina de estados: tabla de transiciones permitidas desde cada estado.
     private static final Map<EstadoOrden, Set<EstadoOrden>> TRANSICIONES = new EnumMap<>(EstadoOrden.class);
 
     static {
@@ -62,6 +69,7 @@ public enum EstadoOrden {
         return Collections.unmodifiableSet(TRANSICIONES.get(this));
     }
 
+    // PATRÓN Máquina de estados: la orden pregunta aquí antes de cambiar de estado.
     public boolean permiteTransicionA(EstadoOrden destino) {
         return TRANSICIONES.get(this).contains(destino);
     }

@@ -1,5 +1,11 @@
 package com.taller.dominio.evento;
 
+/**
+ * Para qué sirve: Se registró un diagnóstico con sus códigos de falla. Lo emite OrdenTrabajo; lo
+ * escucha M1.
+ * <p>PATRÓN Eventos de dominio (DDD): hecho inmutable del negocio; los manejadores que lo escuchan
+ *     están indicados arriba.
+ */
 public class DiagnosticoRegistrado extends EventoDominio {
 
     private final String idOrden;

@@ -1,5 +1,11 @@
 package com.taller.dominio.evento;
 
+/**
+ * Para qué sirve: El vehículo salió del taller. Lo emite OrdenTrabajo; lo escuchan M1 y M4
+ * (programa el mantenimiento preventivo).
+ * <p>PATRÓN Eventos de dominio (DDD): hecho inmutable del negocio; los manejadores que lo escuchan
+ *     están indicados arriba.
+ */
 public class VehiculoEntregado extends EventoDominio {
 
     private final String idOrden;
